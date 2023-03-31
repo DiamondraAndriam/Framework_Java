@@ -1,0 +1,30 @@
+sprint 1 :
+- création d'un repository Github
+- création + clone branche sprint1
+- (package etuxxxx.framework.servlet) FrontServlet.java
+- classe + web.xml
+- tous les urls pointés sur FrontServlet
+
+sprint2 :
+- creation classe Mapping (package etuxxxx.framework)
+    { String className, String method}
+- attribut de FrontServlet: HashMap<String,Mapping> <- String: url
+
+sprint 3 :
+- récupération de tous les packages de l'application
+- récupération de toutes les classes
+- récupération de toutes les méthodes + urls
+- init mappingUrl
+
+sprint 4 :
+- rangement: séparation framework + test
+- framework.jar : jar cvfm framework.jar MANIFEST.MF *.class
+
+sprint 5 :
+- class ModelView (package etu1748.framework)
+    {String view;}
+- dans FrontServlet:
+    - test si url dans HashMap
+        - oui: instanciation class
+        - invoke method
+- framework.war : jar cvf framework.war *
