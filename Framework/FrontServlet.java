@@ -39,7 +39,7 @@ public class FrontServlet extends HttpServlet {
             throws IOException, ServletException {
         String url = Util.getBaseURL(req.getRequestURL().toString());
         PrintWriter out = res.getWriter();
-        Set<String> mappingUrlsKey = mappingUrls.keySet();
+        /*Set<String> mappingUrlsKey = mappingUrls.keySet();
         res.setContentType("text/html;charset=UTF-8");
         out.println("<table><tr><th>Url</th><th>Class</th><th>Method</th></tr>");
         for(String key : mappingUrlsKey){
@@ -48,7 +48,24 @@ public class FrontServlet extends HttpServlet {
             out.println("<td>" + key + "</td><td>" + map.getClassName() + "</td><td>" + map.getMethod() + "</td>");
             out.println("</tr>");
         }
-        out.println("</table>");
+        out.println("</table>");*/
+        Mapping map = (Mapping) mappingUrls.get(url);
+        if(map == null){
+            out.println("Erreur 404: URL not found");
+        } else {
+            try{
+                Class<?> new_class = Class.forName(map.getClassName());
+                Object instance = new_class.newInstance();
+                Method method = new_class.getDeclaredMethod(map.getMethod());
+                ModelView mv = (ModelView) method.invoke(instance);
+                RequestDispatcher dispat = req.getRequestDispatcher(mv.getView());
+                dispat.forward(req,res);
+            }
+            catch(Exception e){
+                out.println(e.getMessage());
+            }
+            
+        }
     }
 
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
