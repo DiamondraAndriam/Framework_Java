@@ -7,6 +7,7 @@
     <title>Document</title>
 </head>
 <body>
-    <a href="<%=request.getContextPath()%>/hello.html">Cliquez ici</a>
+    <a href="<%=request.getContextPath()%>/emp-all">Liste</a><br/>
+    <a href="<%=request.getContextPath()%>/emp-add">Ajouter</a>
 </body>
 </html>
