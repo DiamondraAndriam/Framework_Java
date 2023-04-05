@@ -28,3 +28,25 @@ sprint 5 :
         - oui: instanciation class
         - invoke method
 - framework.war : jar cvf framework.war *
+
+sprint 6: 
+(mandefa données av ao amin'ny controller makany amin'ny vue)
+- ModelView:
+    - attribut : data (<HashMap<String,Object>) + get set 
+    - addItem(String,Object)
+- FrontServlet:
+    (return) ModelView (reflect)
+        - data
+        - iterer data
+            -> element
+                -> request.setAttribute(key,value)
+- (test) Emp:
+ModelView findAll(){
+    ...
+    mv.setUrl("...");
+    List<Emp> l  = ...
+    ...
+    mv.addItem("list",l);
+    return mv;
+}
+- jsp
