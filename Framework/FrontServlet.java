@@ -39,19 +39,6 @@ public class FrontServlet extends HttpServlet {
             throws IOException, ServletException {
         String url = Util.getBaseURL(req.getRequestURL().toString());
         PrintWriter out = res.getWriter();
-        /*
-         * Set<String> mappingUrlsKey = mappingUrls.keySet();
-         * res.setContentType("text/html;charset=UTF-8");
-         * out.println("<table><tr><th>Url</th><th>Class</th><th>Method</th></tr>");
-         * for(String key : mappingUrlsKey){
-         * Mapping map = (Mapping) mappingUrls.get(key);
-         * out.println("<tr>");
-         * out.println("<td>" + key + "</td><td>" + map.getClassName() + "</td><td>" +
-         * map.getMethod() + "</td>");
-         * out.println("</tr>");
-         * }
-         * out.println("</table>");
-         */
         Mapping map = (Mapping) mappingUrls.get(url);
         if (map == null) {
             out.println("Erreur 404: URL not found");
@@ -59,6 +46,18 @@ public class FrontServlet extends HttpServlet {
             try {
                 Class<?> new_class = Class.forName(map.getClassName());
                 Object instance = new_class.newInstance();
+                if (map.getMethod().equalsIgnoreCase("save")) {
+                    Field[] champs = new_class.getDeclaredFields();
+                    for (Field field : champs) {
+                        String input = req.getParameter(field.getName());
+                        Object value = Util.parseType(input, field.getType());
+
+                        field.setAccessible(true);
+                        field.set(instance, value);
+                        field.setAccessible(false);
+                    }
+                    req.setAttribute("saved", instance);
+                }
                 Method method = new_class.getDeclaredMethod(map.getMethod());
                 ModelView mv = (ModelView) method.invoke(instance);
                 HashMap<String, Object> data = mv.getData();
