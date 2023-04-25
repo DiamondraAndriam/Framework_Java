@@ -4,12 +4,14 @@ import etu1748.framework.annotation.Urls;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Date;
 
 import etu1748.framework.ModelView;
 
 public class Emp {
-    int id;
-    String nom;
+    private int id;
+    private String nom;
+    private Date date_naissance;
 
     // getters & setters
     public int getId() {
@@ -26,6 +28,14 @@ public class Emp {
 
     public void setNom(String nom) {
         this.nom = nom;
+    }
+
+    public Date getDate_naissance() {
+        return date_naissance;
+    }
+
+    public void setDate_naissance(Date date_naissance) {
+        this.date_naissance = date_naissance;
     }
 
     // constructeur
@@ -53,5 +63,12 @@ public class Emp {
     @Urls("emp-add")
     public ModelView add() {
         return new ModelView("add_emp.jsp");
+    }
+
+    @Urls("emp-save")
+    public ModelView save() {
+        ModelView mv = new ModelView("sauvegarde.jsp");
+        mv.addItem("employe", this);
+        return mv;
     }
 }

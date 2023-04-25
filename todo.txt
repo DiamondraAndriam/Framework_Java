@@ -50,3 +50,10 @@ ModelView findAll(){
     return mv;
 }
 - jsp
+
+sprint7:
+(mandefa données avy ao amin'ny formulaire makany amin'ny controller + save)
+- mitovy ny anaran'ny name ao @ formulaire sy ny attribut an'ilay objet 
+- miinstancier objet any anaty controller
+- manao set depuis paramètres azo @ requête
+- manao save an'ilay objet (manampoitra ny azo avy anaty formulaire any anaty modèle)
