@@ -51,16 +51,7 @@ public class Util {
         return classes;
     }
 
-    public static String getSetter(Field field) {
-        String name = field.getName();
-        char debut = name.charAt(0);
-        String mot = "" + debut;
-        name = name.replaceFirst(mot, mot.toUpperCase());
-        System.out.println(name);
-        return "set" + name;
-    }
-
-    public static Object parseType(String input, Class type) {
+    public static Object parseType(String input, Class<?> type) {
         Object answer = null;
         if (type == int.class || type == Integer.class) {
             answer = Integer.parseInt(input);
@@ -81,5 +72,14 @@ public class Util {
             answer = input;
         }
         return answer;
+    }
+
+    public static Method findMethod(String methodName, Class<?> type) {
+        Method[] methods = type.getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.getName().equalsIgnoreCase(methodName))
+                return method;
+        }
+        return null;
     }
 }

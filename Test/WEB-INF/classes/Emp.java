@@ -71,4 +71,12 @@ public class Emp {
         mv.addItem("employe", this);
         return mv;
     }
+
+    @Urls("details-emp")
+    public ModelView details(int message) {
+        System.out.println(message);
+        ModelView mv = new ModelView("details.jsp");
+        mv.addItem("message", message);
+        return mv;
+    }
 }

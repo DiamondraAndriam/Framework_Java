@@ -46,6 +46,33 @@ public class FrontServlet extends HttpServlet {
             try {
                 Class<?> new_class = Class.forName(map.getClassName());
                 Object instance = new_class.newInstance();
+                System.out.println(map.getMethod());
+                ModelView mv = null;
+                Method method = null;
+                Object[] paramsValue = null;
+
+                try {
+                    method = new_class.getDeclaredMethod(map.getMethod());
+                } catch (Exception e) {
+                    method = Util.findMethod(map.getMethod(), new_class);
+                    if (method == null) {
+                        throw new Exception("Method introuvable, vérifiez le nom de la méthode");
+                    }
+                    Parameter[] params = method.getParameters();
+                    paramsValue = new Object[params.length];
+                    Class<?> paramType = null;
+                    for (int i = 0; i < params.length; i++) {
+                        try {
+                            paramType = params[i].getType();
+                            System.out.println(paramType.getName());
+                            paramsValue[i] = Util.parseType(req.getParameter(params[i].getName()), paramType);
+                            System.out.println(paramsValue[i]);
+                        } catch (Exception e1) {
+                            throw new Exception("Erreur avec le paramètre : " + params[i].getName());
+                        }
+                    }
+                }
+
                 if (map.getMethod().equalsIgnoreCase("save")) {
                     Field[] champs = new_class.getDeclaredFields();
                     for (Field field : champs) {
@@ -56,10 +83,13 @@ public class FrontServlet extends HttpServlet {
                         field.set(instance, value);
                         field.setAccessible(false);
                     }
-                    req.setAttribute("saved", instance);
                 }
-                Method method = new_class.getDeclaredMethod(map.getMethod());
-                ModelView mv = (ModelView) method.invoke(instance);
+                try {
+                    mv = (ModelView) method.invoke(instance);
+                } catch (Exception e2) {
+                    mv = (ModelView) method.invoke(instance, paramsValue);
+                }
+
                 HashMap<String, Object> data = mv.getData();
                 if (data != null) {
                     Set<String> keys = data.keySet();
@@ -69,10 +99,11 @@ public class FrontServlet extends HttpServlet {
                 }
                 RequestDispatcher dispat = req.getRequestDispatcher(mv.getView());
                 dispat.forward(req, res);
+
             } catch (Exception e) {
                 out.println(e.getMessage());
+                e.printStackTrace();
             }
-
         }
     }
 

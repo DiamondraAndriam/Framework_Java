@@ -20,11 +20,13 @@
             <tr>
                 <th width="100px">Id</th>
                 <th width="200px">Nom</th>
+                <th width="200px">Détails</th>
             </tr>
             <% for(Emp emp : liste){ %>
             <tr>
-                <td><% out.println(emp.getId()); %></td>
-                <td><% out.println(emp.getNom()); %></td>
+                <td><% out.print(emp.getId()); %></td>
+                <td><% out.print(emp.getNom()); %></td>
+                <td><a href="<%=request.getContextPath()%>/details-emp?message=<% out.print(emp.getNom()); %>">Détails</a></td>
             </tr>
             <% } %>
         </table>
