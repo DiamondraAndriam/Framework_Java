@@ -1,6 +1,6 @@
 <%@page import="modele.Emp" %>
 <%
-    Emp emp = (Emp) request.getAttribute("saved");
+    Emp emp = (Emp) request.getAttribute("employe");
 %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
