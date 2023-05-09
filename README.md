@@ -12,7 +12,15 @@
 
 - Veuillez configurer votre fichier web.xml dans WEB-INF en ajoutant le code suivant:
 
-    <code>
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                      http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+  version="3.1"
+  metadata-complete="true">
+
     <servlet>
       <servlet-name>FrontServlet</servlet-name>
       <servlet-class>etu1748.framework.servlet.FrontServlet</servlet-class>
@@ -22,7 +30,8 @@
       <servlet-name>FrontServlet</servlet-name>
       <url-pattern>/</url-pattern>
     </servlet-mapping>
-    </code>
+
+</web-app>
 
     -  Si vous n'arrivez pas à compiler vos classes, ajoutez framework.jar à votre classpath.
 
