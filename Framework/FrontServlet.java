@@ -50,6 +50,7 @@ public class FrontServlet extends HttpServlet {
                 ModelView mv = null;
                 Method method = null;
                 Object[] paramsValue = null;
+                String[] paramsName = null;
 
                 try {
                     method = new_class.getDeclaredMethod(map.getMethod());
@@ -61,14 +62,33 @@ public class FrontServlet extends HttpServlet {
                     Parameter[] params = method.getParameters();
                     paramsValue = new Object[params.length];
                     Class<?> paramType = null;
-                    for (int i = 0; i < params.length; i++) {
-                        try {
-                            paramType = params[i].getType();
-                            System.out.println(paramType.getName());
-                            paramsValue[i] = Util.parseType(req.getParameter(params[i].getName()), paramType);
-                            System.out.println(paramsValue[i]);
-                        } catch (Exception e1) {
-                            throw new Exception("Erreur avec le paramètre : " + params[i].getName());
+                    String param = "";
+                    if (method.isAnnotationPresent(ParamList.class)) {
+                        paramsName = method.getAnnotation(ParamList.class).value();
+                        for (int i = 0; i < params.length; i++) {
+                            try {
+                                paramType = params[i].getType();
+                                paramsValue[i] = Util.parseType(req.getParameter(paramsName[i]), paramType);
+                            } catch (Exception e1) {
+                                e1.printStackTrace();
+                                throw new Exception("Erreur avec le paramètre : " + paramsName[i]);
+                            }
+                        }
+                    } else {
+                        for (int i = 0; i < params.length; i++) {
+                            try {
+                                paramType = params[i].getType();
+                                if (params[i].isAnnotationPresent(Param.class))
+                                    param = params[i].getAnnotation(Param.class).value();
+                                else if (method.isAnnotationPresent(ParamList.class))
+                                    param = paramsName[i];
+                                else
+                                    param = params[i].getName();
+                                paramsValue[i] = Util.parseType(req.getParameter(param), paramType);
+                            } catch (Exception e1) {
+                                e1.printStackTrace();
+                                throw new Exception("Erreur avec le paramètre : " + params[i].getName());
+                            }
                         }
                     }
                 }

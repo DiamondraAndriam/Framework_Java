@@ -26,7 +26,7 @@
             <tr>
                 <td><% out.print(emp.getId()); %></td>
                 <td><% out.print(emp.getNom()); %></td>
-                <td><a href="<%=request.getContextPath()%>/details-emp?message=<% out.print(emp.getNom()); %>">Détails</a></td>
+                <td><a href="<%=request.getContextPath()%>/details-emp?id=<% out.print(emp.getId()); %>&nom=<% out.print(emp.getNom()); %>">Détails</a></td>
             </tr>
             <% } %>
         </table>

@@ -1,5 +1,6 @@
 <%
-    int message = Integer.parseInt(request.getAttribute("arg0"));
+    int id = (int) request.getAttribute("id");
+    String nom = (String) request.getAttribute("nom");
 %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
@@ -11,6 +12,7 @@
     <title>Document</title>
 </head>
 <body>
-    Id : <%=message%>
+    Id : <%=id%> <br/>
+    Nom : <%=nom%>
 </body>
 </html>

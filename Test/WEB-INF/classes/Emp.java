@@ -1,6 +1,6 @@
 package modele;
 
-import etu1748.framework.annotation.Urls;
+import etu1748.framework.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -73,10 +73,13 @@ public class Emp {
     }
 
     @Urls("details-emp")
-    public ModelView details(int message) {
-        System.out.println(message);
+    // @ParamList({ "id", "nom" })
+    public ModelView details(@Param("id") int id, @Param("nom") String nom) {
+        System.out.println(id);
+        System.out.println(nom);
         ModelView mv = new ModelView("details.jsp");
-        mv.addItem("message", message);
+        mv.addItem("id", id);
+        mv.addItem("nom", nom);
         return mv;
     }
 }
