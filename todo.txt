@@ -52,8 +52,27 @@ ModelView findAll(){
 - jsp
 
 sprint7:
-(mandefa données avy ao amin'ny formulaire makany amin'ny controller + save)
+(mandefa données avy ao amin'ny formulaire makany amin'ny controller)
 - mitovy ny anaran'ny name ao @ formulaire sy ny attribut an'ilay objet 
 - miinstancier objet any anaty controller
 - manao set depuis paramètres azo @ requête
 - manao save an'ilay objet (manampoitra ny azo avy anaty formulaire any anaty modèle)
+
+sprint8: 
+ajout de paramètre pour les méthodes
+
+sprint9bis:
+commande sql
+
+sprint9:file upload
+
+Objet: FileUpload (string name, string path, byte[] file)
+mijery fanaovana upload
+ex:<input ... name="badge">
+
+Client
+    name
+    ...
+    FileUpload badge; //attribut
+
+-> manampy sprint7, sprint8
