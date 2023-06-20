@@ -1,6 +1,7 @@
 package etu1748.framework.util;
 
-import java.io.File;
+import java.io.*;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.Date;
@@ -9,6 +10,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.*;
+
+import etu1748.framework.FileUpload;
 
 public class Util {
 
@@ -81,5 +85,56 @@ public class Util {
                 return method;
         }
         return null;
+    }
+
+    public String getFileName(Part part) {
+        String contentDisposition = part.getHeader("Content-Disposition");
+        System.out.println("Content-Disposition: " + contentDisposition);
+        String[] elements = contentDisposition.split(";");
+        for (String element : elements) {
+            if (element.trim().startsWith("filename")) {
+                String filename = element.substring(element.indexOf('=') + 1).trim();
+                if (filename.startsWith("\"") && filename.endsWith("\"")) {
+                    filename = filename.substring(1, filename.length() - 1);
+                }
+                System.out.println("File name : " + filename);
+                return filename;
+            }
+        }
+        return null;
+    }
+
+    public byte[] fileToBytes(Part filePart) throws IOException {
+        byte[] bytes = null;
+        String filename = this.getFileName(filePart);
+
+        InputStream fileContent = filePart.getInputStream();
+        ByteArrayOutputStream fileOutput = new ByteArrayOutputStream();
+
+        try {
+            bytes = new byte[4096];
+            int bytesRead;
+
+            while ((bytesRead = fileContent.read(bytes)) != -1) {
+                fileOutput.write(bytes, 0, bytesRead);
+            }
+
+            byte[] fileBytes = fileOutput.toByteArray();
+            return fileBytes;
+        } finally {
+            fileContent.close();
+            fileOutput.close();
+        }
+    }
+
+    public FileUpload getFileUpload(Part filePart) throws IOException {
+        String fileName = getFileName(filePart);
+        byte[] fileContent = fileToBytes(filePart);
+        filePart.getInputStream().close();
+
+        FileUpload upload = new FileUpload();
+        upload.setName(fileName);
+        upload.setFile(fileContent);
+        return upload;
     }
 }

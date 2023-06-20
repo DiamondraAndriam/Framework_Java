@@ -32,12 +32,14 @@ public class FrontServlet extends HttpServlet {
             String className = classes.get(i).getName();
 
             // ajouter à singletons si singleton
-            if (classes.get(i).isAnnotationPresent(Scope.class)) {
-                Scope scope = (Scope) classes.get(i).getAnnotation(Scope.class);
-                if (scope.value().equalsIgnoreCase("singleton")) {
-                    singletons.put(className, null);
-                }
-            }
+            /*
+             * if (classes.get(i).isAnnotationPresent(Scope.class)) {
+             * Scope scope = (Scope) classes.get(i).getAnnotation(Scope.class);
+             * if (scope.value().equalsIgnoreCase("singleton")) {
+             * singletons.put(className, null);
+             * }
+             * }
+             */
 
             // ajouter à mappingUrls tous les méthodes des classes avec une annotation Urls
             Method[] methods = classes.get(i).getDeclaredMethods();
@@ -52,39 +54,48 @@ public class FrontServlet extends HttpServlet {
         }
     }
 
-    // set automatique de l'instance courant
-    public void autoset(HttpServletRequest req, Class<?> new_class, Object instance) throws Exception {
+    public void autoset(HttpServletRequest req, Object instance) throws Exception {
+        System.out.println("miditra autoset");
+        Class<?> new_class = instance.getClass();
         Field[] champs = new_class.getDeclaredFields();
-        reset(champs, instance);
+        // reset(champs, instance);
         for (Field field : champs) {
-            if (field.getType().getSimpleName().equalsIgnoreCase("FileUpload"))
-                System.out.println(field.getType().getName());
-            else {
-                String input = req.getParameter(field.getName());
-                Object value = Util.parseType(input, field.getType());
+            System.out.println("boucle");
+            if (field.getType() == FileUpload.class) {
+                Part file = req.getPart(field.getName());
+                FileUpload value = util.getFileUpload(file);
                 field.setAccessible(true);
                 field.set(instance, value);
                 field.setAccessible(false);
+            } else {
+                String input = req.getParameter(field.getName());
+                if (input != null) {
+                    Object value = Util.parseType(input, field.getType());
+                    System.out.println(input);
+                    field.setAccessible(true);
+                    field.set(instance, value);
+                    field.setAccessible(false);
+                }
             }
         }
     }
 
-    // annuler tous les paramètres
-    public void reset(Field[] champs, Object instance) throws Exception {
-        for (Field field : champs) {
-            Object defaut = util.getDefault(field);
-            field.setAccessible(true);
-            field.set(instance, defaut);
-            field.setAccessible(false);
-        }
-    }
+    /*
+     * public void reset(Field[] champs, Object instance) throws Exception {
+     * for (Field field : champs) {
+     * Object defaut = util.getDefault(field);
+     * field.setAccessible(true);
+     * field.set(instance, defaut);
+     * field.setAccessible(false);
+     * }
+     * }
+     */
 
-    // instanciation de la méthode
-    public void setMethod(Method method, HttpServletRequest req, Parameter[] params, Object[] paramsValue)
+    public Object[] setMethod(Method method, HttpServletRequest req, Parameter[] params)
             throws Exception {
 
         String[] paramsName = null;
-        paramsValue = new Object[params.length];
+        Object[] paramsValue = new Object[params.length];
         Class<?> paramType = null;
         String param = "";
 
@@ -119,6 +130,7 @@ public class FrontServlet extends HttpServlet {
                 }
             }
         }
+        return paramsValue;
     }
 
     protected void processRequest(HttpServletRequest req, HttpServletResponse res)
@@ -150,7 +162,7 @@ public class FrontServlet extends HttpServlet {
 
                     // si la requête a des paramètres
                     if (req.getParameterMap().isEmpty() == false)
-                        autoset(req, new_class, instance);
+                        autoset(req, instance);
 
                 } catch (Exception e) {
                     method = Util.findMethod(map.getMethod(), new_class);
@@ -160,15 +172,20 @@ public class FrontServlet extends HttpServlet {
 
                     // méthode avec des paramètres
                     params = method.getParameters();
-                    setMethod(method, req, params, paramsValue);
+                    System.out.println("manao set parameter");
+                    paramsValue = setMethod(method, req, params);
+                    System.out.println(paramsValue);
                 }
 
                 try {
                     mv = (ModelView) method.invoke(instance);
                 } catch (Exception e2) {
+                    System.out.println(paramsValue);
                     mv = (ModelView) method.invoke(instance, paramsValue);
                 }
 
+                System.out.println("mv:" + mv);
+                System.out.println("tonga eto");
                 // récupération des données dans le modelView
                 HashMap<String, Object> data = mv.getData();
                 if (data != null) {
@@ -177,6 +194,7 @@ public class FrontServlet extends HttpServlet {
                         req.setAttribute(key, data.get(key));
                     }
                 }
+
                 RequestDispatcher dispat = req.getRequestDispatcher(mv.getView());
                 dispat.forward(req, res);
 

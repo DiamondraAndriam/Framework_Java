@@ -7,8 +7,6 @@
     <title>Document</title>
 </head>
 <body>
-    <a href="<%=request.getContextPath()%>/emp-all">Liste</a><br/>
-    <a href="<%=request.getContextPath()%>/emp-add">Ajouter</a><br/>
-    <a href="<%=request.getContextPath()%>/file_upload.jsp">Test Employer</a>
+    Téléchargement réussi
 </body>
 </html>
