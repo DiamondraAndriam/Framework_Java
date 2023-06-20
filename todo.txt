@@ -18,7 +18,8 @@ sprint 3 :
 
 sprint 4 :
 - rangement: séparation framework + test
-- framework.jar : jar cvfm framework.jar MANIFEST.MF *.class
+- création script (windows + linux)*****
+- framework.jar: 
 
 sprint 5 :
 - class ModelView (package etu1748.framework)
@@ -27,33 +28,67 @@ sprint 5 :
     - test si url dans HashMap
         - oui: instanciation class
         - invoke method
-- framework.war : jar cvf framework.war *
 
-sprint 6: 
-(mandefa données av ao amin'ny controller makany amin'ny vue)
-- ModelView:
-    - attribut : data (<HashMap<String,Object>) + get set 
-    - addItem(String,Object)
-- FrontServlet:
-    (return) ModelView (reflect)
-        - data
-        - iterer data
-            -> element
-                -> request.setAttribute(key,value)
-- (test) Emp:
-ModelView findAll(){
+sprint 7:
+- manao set automatique ilay class avy @ paramètre de requête
+
+sprint 8:
+- asiana parameters ny method iray anaty fonction
+
+sprint 9: file upload
+FileUpload (string name, string path, byte[] file)
+mijery fanaovana upload
+ex:<input ... name="badge">
+
+Client
+    name
     ...
-    mv.setUrl("...");
-    List<Emp> l  = ...
-    ...
-    mv.addItem("list",l);
-    return mv;
+    FileUpload badge; //attribut
+
+-> manampy sprint7, sprint8
+
+
+sprint 10: singleton
+(performance mémoire)
+
+manao reset avant requête (atao valeur par défaut)
+
+-> asiana liberté: annotation @scope("singleton")
+HashMap<String nomClasse, Objet classe>: testena hoe iza no classe singleton  
+-> créer na anaty init
+
+test: asiana attribut appel  ny class
+asian appel ++ isaky ny method
+
+
+sprint 11: session
+
+ex method:
+//anonynme (mety daholo)
+findAll()
+
+@auth("admin")  //mila admin vao mety -> mi throws
+delete()
+
+@auth   //mila authentifié fotsiny -> mi throws
+save()
+
+-> testena hoe mety ve?
+
+Anaty web.xml :
+sessionName = isConnected
+profilName = profil
+
+anaty ModelView asiana attribut: HashMap<String,Object> session
+
+any @ méthod ex:
+@url(...)
+authentificate(){
+    //check login password
+    // si ok
+    session.put("isConnected",true)
+    // si admin
+    session.put("profil",admin)
 }
-- jsp
 
-sprint7:
-(mandefa données avy ao amin'ny formulaire makany amin'ny controller + save)
-- mitovy ny anaran'ny name ao @ formulaire sy ny attribut an'ilay objet 
-- miinstancier objet any anaty controller
-- manao set depuis paramètres azo @ requête
-- manao save an'ilay objet (manampoitra ny azo avy anaty formulaire any anaty modèle)
+sprint 12: session par objet
