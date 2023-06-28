@@ -92,3 +92,22 @@ authentificate(){
 }
 
 sprint 12: session par objet
+
+sprint 13: Json
+ModelView{
+    ...
+    bool isJSON = false; (défaut)
+}
+- data : avadika JSON
+- content-type: text/json
+
+sprint 14: Json
+- annotation JSON
+
+ex:
+@urls("...")
+@JSON
+Emp[] findAll(){
+    ...
+}
+-> retour avadika JSON

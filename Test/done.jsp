@@ -1,3 +1,4 @@
+<% out.println(request.getAttribute("singleton")); %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
