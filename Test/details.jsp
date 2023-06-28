@@ -1,3 +1,4 @@
+<% out.println(request.getAttribute("singleton")); %>
 <%
     int id = (int) request.getAttribute("id");
     String nom = (String) request.getAttribute("nom");

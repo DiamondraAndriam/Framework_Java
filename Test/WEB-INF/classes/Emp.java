@@ -4,18 +4,47 @@ import etu1748.framework.annotation.*;
 import etu1748.framework.FileUpload;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.sql.Date;
 
 import etu1748.framework.ModelView;
 
+@Scope("singleton")
 public class Emp {
     private int id;
     private String nom;
+    private String prenom;
     private Date date_naissance;
     private FileUpload badge;
+    private String login;
+    private String password;
 
     // getters & setters
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public int getId() {
         return id;
     }
@@ -99,4 +128,22 @@ public class Emp {
         mv.addItem("emp", this);
         return mv;
     }
+
+    @Urls("test-singleton")
+    public ModelView singleton() {
+        return new ModelView("test_singleton1.jsp");
+    }
+
+    /*@Urls("authentification")
+    public ModelView authentificate() {
+        ModelView mv = new ModelView("accueil.jsp");
+        if (this.login.equals("Nom") && this.password.equals("123456") ||
+                this.login.equals("Admin") && this.password.equals("123456")) {
+            mv.addSession("isConnected", true);
+            if (this.login.equals("Admin")) {
+                mv.addSession("profil", "admin");
+            }
+        }
+    }*/
+
 }

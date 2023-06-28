@@ -137,4 +137,15 @@ public class Util {
         upload.setFile(fileContent);
         return upload;
     }
+
+    public Object getDefault(Class<?> classe) {
+        if (classe == int.class || classe == double.class || classe == float.class) {
+            return 0;
+        } else if (classe == boolean.class) {
+            return false;
+        } else {
+            return null;
+        }
+    }
+
 }

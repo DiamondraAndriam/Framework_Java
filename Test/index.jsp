@@ -9,6 +9,8 @@
 <body>
     <a href="<%=request.getContextPath()%>/emp-all">Liste</a><br/>
     <a href="<%=request.getContextPath()%>/emp-add">Ajouter</a><br/>
-    <a href="<%=request.getContextPath()%>/file_upload.jsp">Test Employer</a>
+    <a href="<%=request.getContextPath()%>/file_upload.jsp">Test Employer</a><br/>
+    <a href="<%=request.getContextPath()%>/dept-view"> test singleton dept </a><br/>
+    <a href="<%=request.getContextPath()%>/test-singleton"> test singleton emp</a>
 </body>
 </html>

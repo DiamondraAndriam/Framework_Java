@@ -16,7 +16,9 @@ public class FrontServlet extends HttpServlet {
     HashMap<String, Mapping> mappingUrls;
     HashMap<String, Object> singletons;
     Util util = new Util();
+    int appel_singleton = 0;
 
+    // valeur initiale
     public void init() {
         mappingUrls = new HashMap<String, Mapping>();
         singletons = new HashMap<String, Object>();
@@ -32,14 +34,12 @@ public class FrontServlet extends HttpServlet {
             String className = classes.get(i).getName();
 
             // ajouter à singletons si singleton
-            /*
-             * if (classes.get(i).isAnnotationPresent(Scope.class)) {
-             * Scope scope = (Scope) classes.get(i).getAnnotation(Scope.class);
-             * if (scope.value().equalsIgnoreCase("singleton")) {
-             * singletons.put(className, null);
-             * }
-             * }
-             */
+            if (classes.get(i).isAnnotationPresent(Scope.class)) {
+                Scope scope = (Scope) classes.get(i).getAnnotation(Scope.class);
+                if (scope.value().equalsIgnoreCase("singleton")) {
+                    singletons.put(className, null);
+                }
+            }
 
             // ajouter à mappingUrls tous les méthodes des classes avec une annotation Urls
             Method[] methods = classes.get(i).getDeclaredMethods();
@@ -54,6 +54,7 @@ public class FrontServlet extends HttpServlet {
         }
     }
 
+    // manao set ny objet en instance
     public void autoset(HttpServletRequest req, Object instance) throws Exception {
         System.out.println("miditra autoset");
         Class<?> new_class = instance.getClass();
@@ -80,17 +81,17 @@ public class FrontServlet extends HttpServlet {
         }
     }
 
-    /*
-     * public void reset(Field[] champs, Object instance) throws Exception {
-     * for (Field field : champs) {
-     * Object defaut = util.getDefault(field);
-     * field.setAccessible(true);
-     * field.set(instance, defaut);
-     * field.setAccessible(false);
-     * }
-     * }
-     */
+    // réinitialiser par singeton
+    public void reset(Field[] champs, Object instance) throws Exception {
+        for (Field field : champs) {
+            Object defaut = util.getDefault(field.getType());
+            field.setAccessible(true);
+            field.set(instance, defaut);
+            field.setAccessible(false);
+        }
+    }
 
+    // set tous les attributs settables
     public Object[] setMethod(Method method, HttpServletRequest req, Parameter[] params)
             throws Exception {
 
@@ -147,14 +148,25 @@ public class FrontServlet extends HttpServlet {
 
             // url trouvé
             try {
-                Class<?> new_class = Class.forName(map.getClassName());
-                Object instance = new_class.newInstance();
-                System.out.println(map.getMethod());
-
+                Object instance = null;
                 ModelView mv = null; // retour de la fonction associé à l'url
                 Method method = null;
                 Parameter[] params = null;
                 Object[] paramsValue = null;
+                Class<?> new_class = Class.forName(map.getClassName());
+
+                // tester si singleton
+                if (singletons.containsKey(map.getClassName())) {
+                    instance = singletons.get(map.getClassName());
+                    if (instance == null) {
+                        instance = new_class.newInstance();
+                    }
+                    appel_singleton++;
+                } else {
+                    instance = new_class.newInstance();
+                    appel_singleton = 0;
+                }
+                System.out.println(map.getMethod());
 
                 try {
                     // méthode sans paramètre
@@ -194,6 +206,7 @@ public class FrontServlet extends HttpServlet {
                         req.setAttribute(key, data.get(key));
                     }
                 }
+                req.setAttribute("singleton", appel_singleton);
 
                 RequestDispatcher dispat = req.getRequestDispatcher(mv.getView());
                 dispat.forward(req, res);
