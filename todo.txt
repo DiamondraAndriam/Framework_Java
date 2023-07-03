@@ -76,8 +76,8 @@ save()
 -> testena hoe mety ve?
 
 Anaty web.xml :
-sessionName = isConnected
-profilName = profil
+sessionName = isConnected -> @auth() tsotra
+profilName = profil -> @auth("role")
 
 anaty ModelView asiana attribut: HashMap<String,Object> session
 
@@ -88,12 +88,25 @@ authentificate(){
     // si ok
     session.put("isConnected",true)
     // si admin
-    session.put("profil",admin)
+    session.put("profil","admin")
 }
+
+-> micréer httpSession anaty FrontServlet 
 
 sprint 12: session par objet
 
+asiana anotation @session ilay method manao set session
+asiana Map session 
+
+if session(){
+    foreach httpSession{
+        Model.addSession(...)
+    }
+}
+methode mandefa anaty session
+
 sprint 13: Json
+
 ModelView{
     ...
     bool isJSON = false; (défaut)
@@ -102,6 +115,7 @@ ModelView{
 - content-type: text/json
 
 sprint 14: Json
+
 - annotation JSON
 
 ex:
@@ -111,3 +125,16 @@ Emp[] findAll(){
     ...
 }
 -> retour avadika JSON
+
+sprint 15: mamafa session
+
+ModelView:
+invalidateSession:false
+
+methode: logout
+-> mv return invalidateSession:true
+// mamono an'izy rehetra
+
+List<String> removeSession; (variable de session esorina)
+// mamafa -> anarana session
+-> esorina anaty httpSession

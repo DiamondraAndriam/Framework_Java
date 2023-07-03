@@ -7,10 +7,18 @@
     <title>Document</title>
 </head>
 <body>
+    <h2> Test Set automatique </h2>
     <a href="<%=request.getContextPath()%>/emp-all">Liste</a><br/>
     <a href="<%=request.getContextPath()%>/emp-add">Ajouter</a><br/>
     <a href="<%=request.getContextPath()%>/file_upload.jsp">Test Employer</a><br/>
+    <br>
+    <h2> Test Singleton </h2>
     <a href="<%=request.getContextPath()%>/dept-view"> test singleton dept </a><br/>
     <a href="<%=request.getContextPath()%>/test-singleton"> test singleton emp</a>
+    <br>
+    <h2> Test Session </h2>
+    <a href="<%=request.getContextPath()%>/login.jsp"> Se connecter </a><br/>
+    <a href="<%=request.getContextPath()%>/profil"> Voir profil</a><br/>
+    <a href="<%=request.getContextPath()%>/admin"> Voir zone admin</a>
 </body>
 </html>
