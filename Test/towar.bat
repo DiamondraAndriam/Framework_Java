@@ -1,1 +1,0 @@
-jar cvf framework.war *

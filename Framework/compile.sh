@@ -6,11 +6,13 @@ mkdir $webinf/lib
 classes= "$dossier/WEB-INF/classes"
 mkdir $classes
 
-javac --release 8 -d . FileUpload.java
-javac --release 8 -d . Mapping.java
+javac --release 8 -d . Scope.java
+javac --release 8 -d . Auth.java
 javac --release 8 -d . Urls.java
 javac --release 8 -d . ParamList.java
 javac --release 8 -d . Param.java
+javac --release 8 -d . Mapping.java
+javac --release 8 -d . FileUpload.java
 javac --release 8 -d . ModelView.java
 javac --release 8 -d . Util.java
 javac --release 8 -d . FrontServlet.java

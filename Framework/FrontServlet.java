@@ -15,13 +15,19 @@ import java.lang.reflect.*;
 public class FrontServlet extends HttpServlet {
     HashMap<String, Mapping> mappingUrls;
     HashMap<String, Object> singletons;
+    String session_connection = null;
+    String session_profil = null;
     Util util = new Util();
     int appel_singleton = 0;
 
     // valeur initiale
-    public void init() {
+    public void init() throws ServletException {
         mappingUrls = new HashMap<String, Mapping>();
         singletons = new HashMap<String, Object>();
+
+        // nom des sessions
+        session_connection = this.getInitParameter("sessionName");
+        session_profil = this.getInitParameter("profilName");
 
         // obtenir le chemin absolu du répertoire
         String path = Thread.currentThread().getContextClassLoader().getResource("").getPath();
@@ -63,11 +69,17 @@ public class FrontServlet extends HttpServlet {
         for (Field field : champs) {
             System.out.println("boucle");
             if (field.getType() == FileUpload.class) {
-                Part file = req.getPart(field.getName());
-                FileUpload value = util.getFileUpload(file);
-                field.setAccessible(true);
-                field.set(instance, value);
-                field.setAccessible(false);
+                try {
+                    Part file = req.getPart(field.getName());
+                    FileUpload value = util.getFileUpload(file);
+                    System.out.println("mivoaka ny fileUpload");
+                    field.setAccessible(true);
+                    field.set(instance, value);
+                    field.setAccessible(false);
+                } catch (Exception e) {
+                    System.out.println("misy olana: ");
+                    e.printStackTrace();
+                }
             } else {
                 String input = req.getParameter(field.getName());
                 if (input != null) {
@@ -141,6 +153,7 @@ public class FrontServlet extends HttpServlet {
         String url = Util.getBaseURL(req.getRequestURL().toString());
         PrintWriter out = res.getWriter();
         Mapping map = (Mapping) mappingUrls.get(url);
+        HttpSession httpSession = req.getSession();
 
         if (map == null) {
             out.println("Erreur 404: URL not found");
@@ -148,6 +161,7 @@ public class FrontServlet extends HttpServlet {
 
             // url trouvé
             try {
+
                 Object instance = null;
                 ModelView mv = null; // retour de la fonction associé à l'url
                 Method method = null;
@@ -166,8 +180,9 @@ public class FrontServlet extends HttpServlet {
                     instance = new_class.newInstance();
                     appel_singleton = 0;
                 }
-                System.out.println(map.getMethod());
+                // System.out.println(map.getMethod());
 
+                // instanciation de la méthode
                 try {
                     // méthode sans paramètre
                     method = new_class.getDeclaredMethod(map.getMethod());
@@ -184,20 +199,21 @@ public class FrontServlet extends HttpServlet {
 
                     // méthode avec des paramètres
                     params = method.getParameters();
-                    System.out.println("manao set parameter");
+                    // System.out.println("manao set parameter");
                     paramsValue = setMethod(method, req, params);
-                    System.out.println(paramsValue);
+                    // System.out.println(paramsValue);
                 }
 
+                // invocation de la méthode
                 try {
                     mv = (ModelView) method.invoke(instance);
                 } catch (Exception e2) {
-                    System.out.println(paramsValue);
+                    // System.out.println(paramsValue);
                     mv = (ModelView) method.invoke(instance, paramsValue);
                 }
+                // System.out.println("mv:" + mv);
+                // System.out.println("tonga eto");
 
-                System.out.println("mv:" + mv);
-                System.out.println("tonga eto");
                 // récupération des données dans le modelView
                 HashMap<String, Object> data = mv.getData();
                 if (data != null) {
@@ -207,6 +223,39 @@ public class FrontServlet extends HttpServlet {
                     }
                 }
                 req.setAttribute("singleton", appel_singleton);
+
+                // test si besoin d'authentification
+                if (method.isAnnotationPresent(Auth.class)) {
+                    Auth auth = method.getAnnotation(Auth.class);
+                    Object connected = httpSession.getAttribute(session_connection);
+                    System.out.println(session_connection);
+
+                    if (connected == null) {
+                        throw new Exception("Methode non authorise. Se connecter");
+                    }
+                    if (auth.value().equals("") == false) {
+                        Object profil = httpSession.getAttribute(session_profil);
+                        if (profil == null) {
+                            throw new Exception("Methode non authorise. Acces refuse");
+                        }
+                        System.out.println(session_profil);
+                    }
+                }
+
+                // set session si authentificate
+                if (method.getName().equalsIgnoreCase("authentificate")) {
+                    System.out.println("miditra");
+                    HashMap<String, Object> mvSession = mv.getSession();
+                    if (mvSession != null && mvSession.isEmpty() == false) {
+                        Set<String> keys = mvSession.keySet();
+                        for (String key : keys) {
+                            httpSession.setAttribute(key, mvSession.get(key));
+                        }
+                    } else {
+                        throw new Exception("Authentification failed");
+                        // retourne un message d'erreur dans le view suivant si authentification échoué
+                    }
+                }
 
                 RequestDispatcher dispat = req.getRequestDispatcher(mv.getView());
                 dispat.forward(req, res);
