@@ -168,7 +168,8 @@ public class FrontServlet extends HttpServlet {
             try {
 
                 Object instance = null;
-                ModelView mv = null; // retour de la fonction associé à l'url
+                Object returnObj = null; // retour de la fonction associé à l'url
+                ModelView mv = null; // retour si ModelView
                 Method method = null;
                 Parameter[] params = null;
                 Object[] paramsValue = null;
@@ -212,10 +213,10 @@ public class FrontServlet extends HttpServlet {
 
                 // invocation de la méthode
                 try {
-                    mv = (ModelView) method.invoke(instance);
+                    returnObj = method.invoke(instance);
                 } catch (Exception e2) {
                     // System.out.println(paramsValue);
-                    mv = (ModelView) method.invoke(instance, paramsValue);
+                    returnObj = method.invoke(instance, paramsValue);
                 }
                 // System.out.println("mv:" + mv);
                 // System.out.println("tonga eto");
@@ -249,41 +250,53 @@ public class FrontServlet extends HttpServlet {
                     method_session.setAccessible(false);
                 }
 
-                // set session
-                HashMap<String, Object> mvSession = mv.getSession();
-                if (mvSession != null && mvSession.isEmpty() == false) {
-                    System.out.println("miditra");
+                if (returnObj instanceof ModelView) {
 
-                    Set<String> keys = mvSession.keySet();
-                    for (String key : keys) {
-                        httpSession.setAttribute(key, mvSession.get(key));
-                    }
-                } else {
-                    if (method.getName().equalsIgnoreCase("authentificate")) {
-                        throw new Exception("Authentification failed");
-                        // retourne un message d'erreur dans le view suivant si authentification échoué
-                    }
-                }
+                    mv = (ModelView) returnObj;
+                    // set session
+                    HashMap<String, Object> mvSession = mv.getSession();
+                    if (mvSession != null && mvSession.isEmpty() == false) {
+                        System.out.println("miditra");
 
-                // récupération des données dans le modelView
-                HashMap<String, Object> data = mv.getData();
-
-                // si modelview avec retour JSON
-                if (mv.isJSON()) {
-                    res.setContentType("application/json");
-                    String datum = util.toJson(data);
-                    out = res.getWriter();
-                    out.println(datum);
-                } else {
-                    if (data != null) {
-                        Set<String> keys = data.keySet();
+                        Set<String> keys = mvSession.keySet();
                         for (String key : keys) {
-                            req.setAttribute(key, data.get(key));
+                            httpSession.setAttribute(key, mvSession.get(key));
+                        }
+                    } else {
+                        if (method.getName().equalsIgnoreCase("authentificate")) {
+                            throw new Exception("Authentification failed");
+                            // retourne un message d'erreur dans le view suivant si authentification échoué
                         }
                     }
-                    // req.setAttribute("singleton", appel_singleton);
-                    RequestDispatcher dispat = req.getRequestDispatcher(mv.getView());
-                    dispat.forward(req, res);
+
+                    // récupération des données dans le modelView
+                    HashMap<String, Object> data = mv.getData();
+
+                    // si modelview avec retour JSON
+                    if (mv.isJSON()) {
+                        res.setContentType("application/json");
+                        String datum = util.toJson(data);
+                        out = res.getWriter();
+                        out.println(datum);
+                    } else {
+                        if (data != null) {
+                            Set<String> keys = data.keySet();
+                            for (String key : keys) {
+                                req.setAttribute(key, data.get(key));
+                            }
+                        }
+                        // req.setAttribute("singleton", appel_singleton);
+                        RequestDispatcher dispat = req.getRequestDispatcher(mv.getView());
+                        dispat.forward(req, res);
+                    }
+                } else {
+                    if (method.isAnnotationPresent(JSON.class)) {
+                        res.setContentType("application/json");
+                        String datum = util.toJson(returnObj);
+                        out = res.getWriter();
+                        out.println(datum);
+                    } else
+                        out.println("Méthode non Supporté");
                 }
             } catch (Exception e) {
                 out.println(e.getMessage());

@@ -206,4 +206,16 @@ public class Emp {
         return mv;
     }
 
+    // sprint 14
+    @JSON
+    @Urls("all_emps")
+    public List<Emp> listEmp() {
+        List<Emp> l = new ArrayList<>();
+        l.add(new Emp(1, "Rabe"));
+        l.add(new Emp(2, "Rakoto"));
+        l.add(new Emp(3, "Rasoa"));
+        l.add(new Emp(4, "Andry"));
+        return l;
+    }
+
 }

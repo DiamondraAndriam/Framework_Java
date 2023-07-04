@@ -24,6 +24,7 @@
     <a href="<%=request.getContextPath()%>/info_session"> Voir données session</a><br/>
     <h2> Test JSON </h2>
     <a href="<%=request.getContextPath()%>/get_emps"> Liste employés(mv)</a><br/>
+    <a href="<%=request.getContextPath()%>/all_emps"> Liste employés(Emp)</a><br/>
     
 </body>
 </html>
