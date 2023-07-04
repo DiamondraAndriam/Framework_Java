@@ -9,7 +9,7 @@
 </head>
 <body>
     <h2> Test Set automatique </h2>
-    <a href="<%=request.getContextPath()%>/emp-all">Liste - sprint 5 & 8 </a><br/>
+    <a href="<%=request.getContextPath()%>/emp-all">Liste - sprint 5, 6 & 8 </a><br/>
     <a href="<%=request.getContextPath()%>/emp-add">Ajouter - sprint 7 </a><br/>
     <a href="<%=request.getContextPath()%>/file_upload.jsp">Test Upload fichier - sprint 9</a><br/>
     <br>

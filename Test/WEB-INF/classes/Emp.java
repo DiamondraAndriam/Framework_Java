@@ -103,6 +103,7 @@ public class Emp {
     }
 
     // fonctions
+    // sprint 6
     @Urls("emp-all")
     public ModelView findAll() {
         ModelView mv = new ModelView("tous_emp.jsp");
@@ -115,11 +116,13 @@ public class Emp {
         return mv;
     }
 
+    // sprint 5
     @Urls("emp-add")
     public ModelView add() {
         return new ModelView("add_emp.jsp");
     }
 
+    // sprint 7
     @Urls("emp-save")
     public ModelView save() {
         ModelView mv = new ModelView("sauvegarde.jsp");
@@ -127,6 +130,7 @@ public class Emp {
         return mv;
     }
 
+    // sprint 8
     @Urls("details-emp")
     @ParamList({ "id", "nom" })
     public ModelView details(@Param("id") int id, @Param("nom") String nom) {
