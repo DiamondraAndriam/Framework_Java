@@ -218,4 +218,12 @@ public class Emp {
         return l;
     }
 
+    // sprint 15
+    @Urls("remove_session")
+    public ModelView rmSession() {
+        ModelView mv = new ModelView("index.jsp");
+        mv.setInvalidateSession(true);
+        return mv;
+    }
+
 }

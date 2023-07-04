@@ -31,6 +31,7 @@
             </tr>
             <% } %>
         </table>
+        <a href="<%=request.getContextPath()%>/index.jsp"> Index </a>
     </center>
 </body>
 </html>

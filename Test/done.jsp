@@ -1,4 +1,9 @@
+<%@page import="modele.Emp" %>
+<%
+    Emp emp = (Emp) request.getAttribute("emp");
+%>
 <% out.println(request.getAttribute("singleton")); %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +13,10 @@
     <title>Document</title>
 </head>
 <body>
-    Téléchargement réussi
+    <h2>Téléchargement réussi</h2>
+    <p> Taille du fichier <% emp.getBadge().getFile().length %> </p>
+<br>
+<a href="<%=request.getContextPath()%>/index.jsp"> Index </a>
+
 </body>
 </html>

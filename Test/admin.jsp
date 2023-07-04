@@ -8,5 +8,8 @@
 </head>
 <body>
     <h1>Bienvenu cher admin</h1>
+    <br>
+    <a href="<%=request.getContextPath()%>/index.jsp"> Index </a>
+
 </body>
 </html>

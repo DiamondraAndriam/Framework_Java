@@ -269,6 +269,11 @@ public class FrontServlet extends HttpServlet {
                         }
                     }
 
+                    // si la méthode expire la session
+                    if (mv.isInvalidateSession() == true) {
+                        httpSession.invalidate();
+                    }
+
                     // récupération des données dans le modelView
                     HashMap<String, Object> data = mv.getData();
 

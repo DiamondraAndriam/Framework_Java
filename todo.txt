@@ -29,6 +29,9 @@ sprint 5 :
         - oui: instanciation class
         - invoke method
 
+sprint 6:
+
+
 sprint 7:
 - manao set automatique ilay class avy @ paramètre de requête
 
