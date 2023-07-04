@@ -138,6 +138,7 @@ public class Emp {
         return mv;
     }
 
+    // sprint 9
     @Urls("upload")
     public ModelView upload() {
         ModelView mv = new ModelView("done.jsp");
@@ -145,13 +146,15 @@ public class Emp {
         return mv;
     }
 
+    // sprint 10
     @Urls("test-singleton")
     public ModelView singleton() {
         return new ModelView("test_singleton1.jsp");
     }
 
+    // sprint 11
     @Urls("authentification")
-    public ModelView authentificate() {
+    public ModelView authenticate() {
         ModelView mv = new ModelView("accueil.jsp");
         mv.addItem("Emp", this);
         // System.out.println(id);
@@ -166,23 +169,40 @@ public class Emp {
         return mv;
     }
 
+    // sprint 11
     @Auth("admin")
     @Urls("admin")
     public ModelView adminView() {
         return new ModelView("admin.jsp");
     }
 
+    // sprint 11
     @Auth
     @Urls("profil")
     public ModelView profilView() {
         return new ModelView("profil.jsp");
     }
 
+    // sprint 12
     @Session
     @Urls("info_session")
     public ModelView addpseudo() {
         ModelView mv = new ModelView("session.jsp");
         mv.addItem("emp", this);
+        return mv;
+    }
+
+    // sprint 13
+    @Urls("get_emps")
+    public ModelView getEmp() {
+        ModelView mv = new ModelView("tous_emp.jsp");
+        List<Emp> l = new ArrayList<>();
+        l.add(new Emp(1, "Rabe"));
+        l.add(new Emp(2, "Rakoto"));
+        l.add(new Emp(3, "Rasoa"));
+        l.add(new Emp(4, "Andry"));
+        mv.addItem("liste", l);
+        mv.setJSON(true);
         return mv;
     }
 

@@ -150,6 +150,7 @@ public class FrontServlet extends HttpServlet {
         return paramsValue;
     }
 
+    // main process
     protected void processRequest(HttpServletRequest req, HttpServletResponse res)
             throws IOException, ServletException {
 
@@ -185,6 +186,7 @@ public class FrontServlet extends HttpServlet {
                     appel_singleton = 0;
                 }
                 // System.out.println(map.getMethod());
+                req.setAttribute("singleton", appel_singleton);
 
                 // instanciation de la méthode
                 try {
@@ -218,16 +220,6 @@ public class FrontServlet extends HttpServlet {
                 // System.out.println("mv:" + mv);
                 // System.out.println("tonga eto");
 
-                // récupération des données dans le modelView
-                HashMap<String, Object> data = mv.getData();
-                if (data != null) {
-                    Set<String> keys = data.keySet();
-                    for (String key : keys) {
-                        req.setAttribute(key, data.get(key));
-                    }
-                }
-                req.setAttribute("singleton", appel_singleton);
-
                 // test si besoin d'authentification
                 if (method.isAnnotationPresent(Auth.class)) {
                     Auth auth = method.getAnnotation(Auth.class);
@@ -248,13 +240,10 @@ public class FrontServlet extends HttpServlet {
 
                 // get session si annoté session
                 if (method.isAnnotationPresent(Session.class)) {
-                    System.out.println("Hita ilay annotation");
                     Method method_session = new_class.getMethod("addSession", String.class, Object.class);
-                    System.out.println("Hita ny méthode addSession");
                     method_session.setAccessible(true);
                     for (Enumeration<String> e = httpSession.getAttributeNames(); e.hasMoreElements();) {
                         String key = (String) e.nextElement();
-                        System.out.println(key);
                         method_session.invoke(instance, key, httpSession.getAttribute(key));
                     }
                     method_session.setAccessible(false);
@@ -276,9 +265,26 @@ public class FrontServlet extends HttpServlet {
                     }
                 }
 
-                RequestDispatcher dispat = req.getRequestDispatcher(mv.getView());
-                dispat.forward(req, res);
+                // récupération des données dans le modelView
+                HashMap<String, Object> data = mv.getData();
 
+                // si modelview avec retour JSON
+                if (mv.isJSON()) {
+                    res.setContentType("application/json");
+                    String datum = util.toJson(data);
+                    out = res.getWriter();
+                    out.println(datum);
+                } else {
+                    if (data != null) {
+                        Set<String> keys = data.keySet();
+                        for (String key : keys) {
+                            req.setAttribute(key, data.get(key));
+                        }
+                    }
+                    // req.setAttribute("singleton", appel_singleton);
+                    RequestDispatcher dispat = req.getRequestDispatcher(mv.getView());
+                    dispat.forward(req, res);
+                }
             } catch (Exception e) {
                 out.println(e.getMessage());
                 e.printStackTrace();

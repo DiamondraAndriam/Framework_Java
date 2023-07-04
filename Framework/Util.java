@@ -10,7 +10,11 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.http.*;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import etu1748.framework.FileUpload;
 
@@ -148,4 +152,9 @@ public class Util {
         }
     }
 
+    public String toJson(Object objet) {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        return gson.toJson(objet);
+    }
 }

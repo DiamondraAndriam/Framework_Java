@@ -22,6 +22,8 @@
     <a href="<%=request.getContextPath()%>/profil"> Voir profil</a><br/>
     <a href="<%=request.getContextPath()%>/admin"> Voir zone admin</a><br/>
     <a href="<%=request.getContextPath()%>/info_session"> Voir données session</a><br/>
-
+    <h2> Test JSON </h2>
+    <a href="<%=request.getContextPath()%>/get_emps"> Liste employés(mv)</a><br/>
+    
 </body>
 </html>
