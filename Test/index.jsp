@@ -1,3 +1,4 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,6 +20,8 @@
     <h2> Test Session </h2>
     <a href="<%=request.getContextPath()%>/login.jsp"> Se connecter </a><br/>
     <a href="<%=request.getContextPath()%>/profil"> Voir profil</a><br/>
-    <a href="<%=request.getContextPath()%>/admin"> Voir zone admin</a>
+    <a href="<%=request.getContextPath()%>/admin"> Voir zone admin</a><br/>
+    <a href="<%=request.getContextPath()%>/info_session"> Voir données session</a><br/>
+
 </body>
 </html>
