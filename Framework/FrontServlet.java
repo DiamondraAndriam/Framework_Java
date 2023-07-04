@@ -8,10 +8,14 @@ import java.sql.*;
 import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.annotation.MultipartConfig;
 
 import java.util.*;
 import java.lang.reflect.*;
 
+@WebServlet("/upload")
+@MultipartConfig
 public class FrontServlet extends HttpServlet {
     HashMap<String, Mapping> mappingUrls;
     HashMap<String, Object> singletons;
@@ -242,16 +246,31 @@ public class FrontServlet extends HttpServlet {
                     }
                 }
 
-                // set session si authentificate
-                if (method.getName().equalsIgnoreCase("authentificate")) {
+                // get session si annoté session
+                if (method.isAnnotationPresent(Session.class)) {
+                    System.out.println("Hita ilay annotation");
+                    Method method_session = new_class.getMethod("addSession", String.class, Object.class);
+                    System.out.println("Hita ny méthode addSession");
+                    method_session.setAccessible(true);
+                    for (Enumeration<String> e = httpSession.getAttributeNames(); e.hasMoreElements();) {
+                        String key = (String) e.nextElement();
+                        System.out.println(key);
+                        method_session.invoke(instance, key, httpSession.getAttribute(key));
+                    }
+                    method_session.setAccessible(false);
+                }
+
+                // set session
+                HashMap<String, Object> mvSession = mv.getSession();
+                if (mvSession != null && mvSession.isEmpty() == false) {
                     System.out.println("miditra");
-                    HashMap<String, Object> mvSession = mv.getSession();
-                    if (mvSession != null && mvSession.isEmpty() == false) {
-                        Set<String> keys = mvSession.keySet();
-                        for (String key : keys) {
-                            httpSession.setAttribute(key, mvSession.get(key));
-                        }
-                    } else {
+
+                    Set<String> keys = mvSession.keySet();
+                    for (String key : keys) {
+                        httpSession.setAttribute(key, mvSession.get(key));
+                    }
+                } else {
+                    if (method.getName().equalsIgnoreCase("authentificate")) {
                         throw new Exception("Authentification failed");
                         // retourne un message d'erreur dans le view suivant si authentification échoué
                     }

@@ -95,7 +95,16 @@ authentificate(){
 
 sprint 12: session par objet
 
-asiana anotation @session ilay method manao set session
+asiana annotation @session ilay method manao set session
+
+Emp{
+    ...
+    @session
+    findAll(){
+        -> getSession();
+    }
+}
+
 asiana Map session 
 
 if session(){
@@ -103,7 +112,7 @@ if session(){
         Model.addSession(...)
     }
 }
-methode mandefa anaty session
+methode mandefa anaty Map session
 
 sprint 13: Json
 
@@ -128,9 +137,11 @@ Emp[] findAll(){
 
 sprint 15: mamafa session
 
-ModelView:
+ModelView{
+...
 invalidateSession:false
-
+...
+}
 methode: logout
 -> mv return invalidateSession:true
 // mamono an'izy rehetra

@@ -19,6 +19,7 @@ public class Emp {
     private String login;
     private String password;
     private FileUpload badge;
+    private HashMap<String, Object> session;
 
     // getters & setters
     public String getPrenom() {
@@ -75,6 +76,21 @@ public class Emp {
 
     public void setBadge(FileUpload badge) {
         this.badge = badge;
+    }
+
+    public HashMap getSession() {
+        return session;
+    }
+
+    public void setSession(HashMap<String, Object> session) {
+        this.session = session;
+    }
+
+    public void addSession(String key, Object value) {
+        if (this.session == null) {
+            this.session = new HashMap<String, Object>();
+        }
+        this.session.put(key, value);
     }
 
     // constructeur
@@ -156,10 +172,18 @@ public class Emp {
         return new ModelView("admin.jsp");
     }
 
-    @Auth()
+    @Auth
     @Urls("profil")
     public ModelView profilView() {
         return new ModelView("profil.jsp");
+    }
+
+    @Session
+    @Urls("info_session")
+    public ModelView addpseudo() {
+        ModelView mv = new ModelView("session.jsp");
+        mv.addItem("emp", this);
+        return mv;
     }
 
 }

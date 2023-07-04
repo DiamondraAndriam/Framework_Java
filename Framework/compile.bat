@@ -6,6 +6,7 @@ mkdir %webinf%\lib
 set classes=%dossier%\WEB-INF\classes
 mkdir %classes%
 
+javac --release 8 -d . Session.java
 javac --release 8 -d . Scope.java
 javac --release 8 -d . Auth.java
 javac --release 8 -d . Urls.java
