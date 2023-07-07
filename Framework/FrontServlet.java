@@ -166,7 +166,6 @@ public class FrontServlet extends HttpServlet {
 
             // url trouvé
             try {
-
                 Object instance = null;
                 Object returnObj = null; // retour de la fonction associé à l'url
                 ModelView mv = null; // retour si ModelView
