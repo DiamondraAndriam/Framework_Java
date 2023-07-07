@@ -144,4 +144,89 @@ Remarque: Ce framework ne prend en charge que les types : int, float, double, bo
 ### Sessions
 
 
-Pour ajouter une session 
+Pour ajouter une session, on utilise les sessions d'un modelView:
+
+```
+  @Urls("authentification")
+    public ModelView authenticate() {
+        ModelView mv = new ModelView("accueil.jsp");
+        mv.addItem("Emp", this);
+        // System.out.println(id);
+        // System.out.println(nom);
+        if (this.login.equals("Nom") && this.password.equals("123456") ||
+                this.login.equals("Admin") && this.password.equals("123456")) {
+            mv.addSession("isConnected", true);
+            if (this.login.equals("Admin")) {
+                mv.addSession("profil", "admin");
+            }
+        }
+        return mv;
+    }
+
+    // sprint 11
+    @Auth("admin")
+    @Urls("admin")
+    public ModelView adminView() {
+        return new ModelView("admin.jsp");
+    }
+```
+
+Il est à noter que les sessions dans l'exemple sessionName valeur de présence d'authentification réussi. La session profil une valeur de paramètre pour les différents rôles
+```xml
+<servlet>
+      <servlet-name>FrontServlet</servlet-name>
+      <servlet-class>etu1748.framework.servlet.FrontServlet</servlet-class>
+      <init-param>
+        <param-name>sessionName</param-name>
+        <param-value>isConnected</param-value>
+      </init-param>
+      <init-param>
+        <param-name>profilName</param-name>
+        <param-value>profil</param-value>
+      </init-param>
+    </servlet>
+```
+
+### Singletons
+
+Pour utiliser un objet Singeton: l'objet est enregistré dans le FrontServlet, on mets une annotation @Scope("singleton")
+```
+  @Scope("singleton")
+public class Emp {
+    private int id;
+    private String nom;
+```
+
+### JSON
+  
+Si on veut utiliser l'application comme API, nous avons 2 méthode: dire si le ModelView veut retourner les valeurs des data:
+
+```
+  @Urls("get_emps")
+    public ModelView getEmp() {
+        ModelView mv = new ModelView("tous_emp.jsp");
+        List<Emp> l = new ArrayList<>();
+        l.add(new Emp(1, "Rabe"));
+        l.add(new Emp(2, "Rakoto"));
+        l.add(new Emp(3, "Rasoa"));
+        l.add(new Emp(4, "Andry"));
+        mv.addItem("liste", l);
+        mv.setJSON(true);
+        return mv;
+    }
+```
+
+   ou retouner des objets JSON et non de ModelView:
+   
+```
+  @JSON
+    @Urls("all_emps")
+    public List<Emp> listEmp() {
+        List<Emp> l = new ArrayList<>();
+        l.add(new Emp(1, "Rabe"));
+        l.add(new Emp(2, "Rakoto"));
+        l.add(new Emp(3, "Rasoa"));
+        l.add(new Emp(4, "Andry"));
+        return l;
+    }
+``` 
