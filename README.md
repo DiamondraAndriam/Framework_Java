@@ -190,7 +190,7 @@ Il est à noter que les sessions dans l'exemple sessionName valeur de présence 
 ### Singletons
 
 Pour utiliser un objet Singeton: l'objet est enregistré dans le FrontServlet, on mets une annotation @Scope("singleton")
-```
+```java
   @Scope("singleton")
 public class Emp {
     private int id;
@@ -201,7 +201,7 @@ public class Emp {
   
 Si on veut utiliser l'application comme API, nous avons 2 méthode: dire si le ModelView veut retourner les valeurs des data:
 
-```
+```java
   @Urls("get_emps")
     public ModelView getEmp() {
         ModelView mv = new ModelView("tous_emp.jsp");
@@ -218,7 +218,7 @@ Si on veut utiliser l'application comme API, nous avons 2 méthode: dire si le M
 
    ou retouner des objets JSON et non de ModelView:
    
-```
+```java
   @JSON
     @Urls("all_emps")
     public List<Emp> listEmp() {
