@@ -4,7 +4,7 @@
 
 ### Prérequis
 
-- Le fichier framework-jdk8-tomcat8.jar
+- Le fichier framework.jar
 - Environnement Java JDK8 ou OpenJDK8
 - Serveur TomCat 8.x.x ou GlassFish 4.x.x
 
@@ -36,8 +36,7 @@
 </web-app>
 ```
 
--  Si vous n'arrivez pas à compiler vos classes, ajoutez framework.jar à votre classpath.
-
+-  Si vous n'arrivez pas à compiler vos classes, ajoutez framework.jar à votre classpath ou à la librairie du serveur.
 
 ## Mode d'emploi
 
@@ -59,7 +58,7 @@
 ### Vos fonctions ou méthodes
 
 - Annotez @Urls (package etu1748.framework.annotation) les méthodes dans vos classes qui redirigent vers des pages :
-    * les méthodes retournent un objet ModelView (package etu1748.framework):
+  * les méthodes retournent un objet ModelView (package etu1748.framework):
     
         
 ```java
@@ -71,7 +70,7 @@
     }
 ```
 
-    * pour ajouter des attributs, on peut ajouter des attributs au HttpServletRequest à travers le ModelView mv par la méthode mv.addItem
+  * pour ajouter des attributs, on peut ajouter des attributs au HttpServletRequest à travers le ModelView mv par la méthode mv.addItem
         
 ```java
         public class VotreClasse {
@@ -84,13 +83,13 @@
         }
 ```
 
-    * pour récupérer les attributs dans la page de redirection, on prend les attributs du HttpServletRequest au même nom qu'à travers le ModelView:
+  * pour récupérer les attributs dans la page de redirection, on prend les attributs du HttpServletRequest au même nom qu'à travers le ModelView:
     
-        <code>
+```java
         T votre_objet = (T) request.getAttribute("nom_attribut");
-        </code>
-            
-    * pour sauvegarder des objets depuis un formulaire, nommez votre fonction save() et envoyer l'objet comme attribut:
+```
+
+  * pour sauvegarder des objets depuis un formulaire, nommez votre fonction save() et envoyer l'objet comme attribut:
         
 ```java 
 public class VotreClasse {
@@ -105,11 +104,11 @@ public class VotreClasse {
 VotreClasse objet = (Votre_classe) request.getAttribute("nom_attribut");
 ```
 
-        Remarque: Ce framework ne prend en charge que les types : int, float, double, boolean, Integer, Float, Double, Boolean, Date, LocalDate, String en attribut d'objet pour la fonction save().
+Remarque: Ce framework ne prend en charge que les types : int, float, double, boolean, Integer, Float, Double, Boolean, Date, LocalDate, String en attribut d'objet pour la fonction save().
 
-    * pour envoyer des paramètres à travers les liens, vous avez plusieurs choix:
+  * pour envoyer des paramètres à travers les liens, vous avez plusieurs choix:
 
-        - Annotez la fonction vers le ModelView avec @ParamList et donnez en liste les noms des paramètres
+    - Annotez la fonction vers le ModelView avec @ParamList et donnez en liste les noms des paramètres
             
 ```java
     @Urls("votre_url")
@@ -120,10 +119,9 @@ VotreClasse objet = (Votre_classe) request.getAttribute("nom_attribut");
         mv.addItem("argument_2", argument_2);
         return mv;
     }
-```
-            
-
-        - Annotez chaque paramètre de votre fonction avec @Param 
+```     
+     
+  - Annotez chaque paramètre de votre fonction avec @Param 
             
 ```java
     @Urls("votre_url")
@@ -135,11 +133,15 @@ VotreClasse objet = (Votre_classe) request.getAttribute("nom_attribut");
     }
 ```
 
-        - Si vous n'utilisez pas d'IDE, pour compiler votre classe, utilisez la commande suivante:
+  - Si vous n'utilisez pas d'IDE, pour compiler votre classe, utilisez la commande suivante:
             
 ```s
     javac -parameters VotreClasse.java
 ```
     
-        Remarque: n'oubliez pas d'ajouter en item du ModelView les attributs
+  Remarque: n'oubliez pas d'ajouter en item du ModelView les attributs que vous voulez en attribut du 
 
+### Sessions
+
+
+Pour ajouter une session 
