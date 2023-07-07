@@ -29,6 +29,20 @@ sprint 5 :
         - oui: instanciation class
         - invoke method
 
+sprint 6:
+Envoie de données par le controller
+
+ModelView: - attribut : data (<HashMap<String,Object>) + get set - addItem(String,Object)
+FrontServlet: (return) ModelView (reflect) - data - iterer data -> element -> request.setAttribute(key,value)
+(test) Emp: ModelView findAll(){
+...
+mv.setUrl("...");
+// liste employe
+...
+mv.addItem("liste",l);
+return mv;
+}
+
 sprint 7:
 - manao set automatique ilay class avy @ paramètre de requête
 

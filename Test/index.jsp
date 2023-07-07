@@ -9,22 +9,25 @@
 </head>
 <body>
     <h2> Test Set automatique </h2>
-    <a href="<%=request.getContextPath()%>/emp-all">Liste</a><br/>
-    <a href="<%=request.getContextPath()%>/emp-add">Ajouter</a><br/>
-    <a href="<%=request.getContextPath()%>/file_upload.jsp">Test Employer</a><br/>
+    <a href="<%=request.getContextPath()%>/emp-all">Liste - sprint 5, 6 & 8 </a><br/>
+    <a href="<%=request.getContextPath()%>/emp-add">Ajouter - sprint 7 </a><br/>
+    <a href="<%=request.getContextPath()%>/file_upload.jsp">Test Upload fichier - sprint 9</a><br/>
     <br>
     <h2> Test Singleton </h2>
-    <a href="<%=request.getContextPath()%>/dept-view"> test singleton dept </a><br/>
-    <a href="<%=request.getContextPath()%>/test-singleton"> test singleton emp</a>
+    <a href="<%=request.getContextPath()%>/dept-view"> test singleton dept - sprint 10 </a><br/>
+    <a href="<%=request.getContextPath()%>/test-singleton"> test singleton emp - sprint 10</a>
     <br>
     <h2> Test Session </h2>
-    <a href="<%=request.getContextPath()%>/login.jsp"> Se connecter </a><br/>
-    <a href="<%=request.getContextPath()%>/profil"> Voir profil</a><br/>
-    <a href="<%=request.getContextPath()%>/admin"> Voir zone admin</a><br/>
-    <a href="<%=request.getContextPath()%>/info_session"> Voir données session</a><br/>
+    <a href="<%=request.getContextPath()%>/login.jsp"> Se connecter - sprint 11 </a><br/>
+    <a href="<%=request.getContextPath()%>/profil"> Voir profil - sprint 11 </a><br/>
+    <a href="<%=request.getContextPath()%>/admin"> Voir zone admin - sprint 11 </a><br/>
+    <a href="<%=request.getContextPath()%>/info_session"> Voir données session - sprint 12</a><br/>
+    <a href="<%=request.getContextPath()%>/remove_session"> Supprimer session - sprint 15 </a><br/>
+
     <h2> Test JSON </h2>
-    <a href="<%=request.getContextPath()%>/get_emps"> Liste employés(mv)</a><br/>
-    <a href="<%=request.getContextPath()%>/all_emps"> Liste employés(Emp)</a><br/>
+    <a href="<%=request.getContextPath()%>/get_emps"> Liste employés(mv) - sprint 13 </a><br/>
+    <a href="<%=request.getContextPath()%>/all_emps"> Liste employés(Emp) - sprint 14 </a><br/>
+    
     
 </body>
 </html>

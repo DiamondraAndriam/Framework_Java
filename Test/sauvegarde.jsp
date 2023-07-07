@@ -17,4 +17,6 @@
     <p>Id: <% out.print(emp.getId()); %></p>
     <p>Nom: <% out.print(emp.getNom()); %></p>
     <p>Date de naissance: <% out.print(emp.getDate_naissance()); %></p>
+    <br>
+    <a href="<%=request.getContextPath()%>/index.jsp"> Index </a>
 </body>

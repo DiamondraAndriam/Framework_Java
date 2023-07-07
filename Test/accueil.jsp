@@ -2,6 +2,7 @@
 <%
     Emp emp = (Emp) request.getAttribute("Emp");
 %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,5 +14,7 @@
 <body>
     <% out.print(emp.getLogin()); %><br>
     <% out.print(emp.getPassword()); %>
+    <br>
+    <a href="<%=request.getContextPath()%>/index.jsp"> Index </a>
 </body>
 </html>

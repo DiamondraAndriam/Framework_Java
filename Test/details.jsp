@@ -15,5 +15,8 @@
 <body>
     Id : <%=id%> <br/>
     Nom : <%=nom%>
+    <br>
+    <a href="<%=request.getContextPath()%>/index.jsp"> Index </a>
+
 </body>
 </html>

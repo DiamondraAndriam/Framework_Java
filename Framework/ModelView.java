@@ -7,8 +7,17 @@ public class ModelView {
     HashMap<String, Object> data;
     HashMap<String, Object> session;
     boolean isJSON;
+    boolean invalidateSession = false;
 
     // getters & setters
+    public boolean isInvalidateSession() {
+        return invalidateSession;
+    }
+
+    public void setInvalidateSession(boolean invalidateSession) {
+        this.invalidateSession = invalidateSession;
+    }
+
     public boolean isJSON() {
         return isJSON;
     }
