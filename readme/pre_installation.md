@@ -12,7 +12,7 @@
 
 - Veuillez configurer votre fichier web.xml dans WEB-INF en ajoutant le code suivant:
 
-<?xml version="1.0" encoding="UTF-8"?>
+`<?xml version="1.0" encoding="UTF-8"?>
 
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -31,6 +31,6 @@
       <url-pattern>/</url-pattern>
     </servlet-mapping>
 
-</web-app>
+</web-app>`
 
     -  Si vous n'arrivez pas à compiler vos classes, ajoutez framework.jar à votre classpath.
