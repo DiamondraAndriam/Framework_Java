@@ -14,7 +14,7 @@ import javax.servlet.annotation.MultipartConfig;
 import java.util.*;
 import java.lang.reflect.*;
 
-@WebServlet("/upload")
+@WebServlet
 @MultipartConfig
 public class FrontServlet extends HttpServlet {
     HashMap<String, Mapping> mappingUrls;
@@ -65,7 +65,7 @@ public class FrontServlet extends HttpServlet {
     }
 
     // manao set ny objet en instance
-    public void autoset(HttpServletRequest req, Object instance) throws Exception {
+    public void autoset(HttpServletRequest req, Object instance, String requestMethod) throws Exception {
         System.out.println("miditra autoset");
         Class<?> new_class = instance.getClass();
         Field[] champs = new_class.getDeclaredFields();
@@ -73,16 +73,20 @@ public class FrontServlet extends HttpServlet {
         for (Field field : champs) {
             System.out.println("boucle");
             if (field.getType() == FileUpload.class) {
-                try {
-                    Part file = req.getPart(field.getName());
-                    FileUpload value = util.getFileUpload(file);
-                    System.out.println("mivoaka ny fileUpload");
-                    field.setAccessible(true);
-                    field.set(instance, value);
-                    field.setAccessible(false);
-                } catch (Exception e) {
-                    System.out.println("misy olana: ");
-                    e.printStackTrace();
+                String contentType = req.getContentType();
+                if (contentType != null && contentType.startsWith("multipart/form-data")
+                        && requestMethod.equalsIgnoreCase("POST")) {
+                    try {
+                        Part file = req.getPart(field.getName());
+                        FileUpload value = util.getFileUpload(file);
+                        System.out.println("mivoaka ny fileUpload");
+                        field.setAccessible(true);
+                        field.set(instance, value);
+                        field.setAccessible(false);
+                    } catch (Exception e) {
+                        System.out.println("misy olana: ");
+                        e.printStackTrace();
+                    }
                 }
             } else {
                 String input = req.getParameter(field.getName());
@@ -151,7 +155,7 @@ public class FrontServlet extends HttpServlet {
     }
 
     // main process
-    protected void processRequest(HttpServletRequest req, HttpServletResponse res)
+    protected void processRequest(HttpServletRequest req, HttpServletResponse res, String requestMethod)
             throws IOException, ServletException {
 
         // prendre l'url demandé et chercher si l'url existe
@@ -195,7 +199,7 @@ public class FrontServlet extends HttpServlet {
 
                     // si la requête a des paramètres
                     if (req.getParameterMap().isEmpty() == false)
-                        autoset(req, instance);
+                        autoset(req, instance, requestMethod);
 
                 } catch (Exception e) {
                     method = Util.findMethod(map.getMethod(), new_class);
@@ -310,10 +314,19 @@ public class FrontServlet extends HttpServlet {
     }
 
     protected void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
-        processRequest(req, res);
+        processRequest(req, res, "GET");
     }
 
     protected void doPost(final HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
-        processRequest(req, res);
+        processRequest(req, res, "POST");
+    }
+
+    protected void doPut(final HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+        processRequest(req, res, "PUT");
+    }
+
+    protected void doDelete(final HttpServletRequest req, HttpServletResponse res)
+            throws IOException, ServletException {
+        processRequest(req, res, "DELETE");
     }
 }

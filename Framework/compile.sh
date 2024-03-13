@@ -7,6 +7,7 @@ classes= "$dossier/WEB-INF/classes"
 mkdir $classes
 
 javac --release 8 -d . JSON.java
+javac --release 8 -d . RequestMethod.java
 javac --release 8 -d . Session.java
 javac --release 8 -d . Scope.java
 javac --release 8 -d . Auth.java

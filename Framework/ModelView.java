@@ -51,6 +51,9 @@ public class ModelView {
     }
 
     // constructeur
+    public ModelView() {
+    }
+
     public ModelView(String view) {
         setView(view);
     }
