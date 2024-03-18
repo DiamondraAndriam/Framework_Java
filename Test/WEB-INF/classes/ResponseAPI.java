@@ -3,7 +3,6 @@ package api;
 public class ResponseAPI {
     private Object data;
     private String error;
-    htt
 
     public Object getData() {
         return data;

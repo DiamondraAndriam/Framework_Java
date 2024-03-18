@@ -55,22 +55,37 @@ public class Employe {
     @Urls("employe")
     @RequestMethod("GET")
     @JSON
-    public List<Employe> findAll() {
-        return null;
+    public ResponseAPI findAll() {
+        try {
+            List<Object> data = GenericDAO.findAll(this);
+            return new ResponseAPI(data);
+        } catch (Exception e) {
+            return new ResponseAPI(e.getMessage());
+        }
     }
 
     @Urls("employe/id")
     @RequestMethod("GET")
     @JSON
-    public List<Employe> findById() {
-        return null;
+    public ResponseAPI findById() {
+        try {
+            List<Object> data = GenericDAO.findById(this, this.getId());
+            return new ResponseAPI(data);
+        } catch (Exception e) {
+            return new ResponseAPI(e.getMessage());
+        }
     }
 
     @Urls("employe/update")
     @RequestMethod("PUT")
     @JSON
     public ResponseAPI update() {
-        GenericDAO.update(this, this.getId());
+        try {
+            GenericDAO.update(this, this.getId());
+            return new ResponseAPI(this);
+        } catch (Exception e) {
+            return new ResponseAPI(e.getMessage());
+        }
     }
 
     @Urls("employe/delete")
@@ -79,10 +94,10 @@ public class Employe {
     public ResponseAPI delete() {
         try {
             GenericDAO.delete(this, this.getId());
+            return new ResponseAPI();
         } catch (Exception e) {
-            // TODO: handle exception
+            return new ResponseAPI(e.getMessage());
         }
-        
     }
 
     @Urls("employe/new")
@@ -91,9 +106,9 @@ public class Employe {
     public ResponseAPI insert() {
         try {
             GenericDAO.insert(this);
+            return new ResponseAPI(this);
         } catch (Exception e) {
-            // TODO: handle exception
+            return new ResponseAPI(e.getMessage());
         }
     }
-
 }

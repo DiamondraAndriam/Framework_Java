@@ -214,97 +214,114 @@ public class FrontServlet extends HttpServlet {
                     // System.out.println(paramsValue);
                 }
 
-                // invocation de la méthode
-                try {
-                    returnObj = method.invoke(instance);
-                } catch (Exception e2) {
-                    // System.out.println(paramsValue);
-                    returnObj = method.invoke(instance, paramsValue);
-                }
-                // System.out.println("mv:" + mv);
-                // System.out.println("tonga eto");
+                if (method.isAnnotationPresent(RequestMethod.class) || requestMethod.equalsIgnoreCase("GET")
+                        || requestMethod.equalsIgnoreCase("POST")) {
 
-                // test si besoin d'authentification
-                if (method.isAnnotationPresent(Auth.class)) {
-                    Auth auth = method.getAnnotation(Auth.class);
-                    Object connected = httpSession.getAttribute(session_connection);
-                    System.out.println(session_connection);
-
-                    if (connected == null) {
-                        throw new Exception("Methode non authorise. Se connecter");
+                    // invocation de la méthode
+                    try {
+                        returnObj = method.invoke(instance);
+                    } catch (Exception e2) {
+                        // System.out.println(paramsValue);
+                        returnObj = method.invoke(instance, paramsValue);
                     }
-                    if (auth.value().equals("") == false) {
-                        Object profil = httpSession.getAttribute(session_profil);
-                        if (profil == null) {
-                            throw new Exception("Methode non authorise. Acces refuse");
+                    // System.out.println("mv:" + mv);
+                    // System.out.println("tonga eto");
+
+                    // test si besoin d'authentification
+                    if (method.isAnnotationPresent(Auth.class)) {
+                        Auth auth = method.getAnnotation(Auth.class);
+                        Object connected = httpSession.getAttribute(session_connection);
+                        System.out.println(session_connection);
+
+                        if (connected == null) {
+                            throw new Exception("Methode non authorise. Se connecter");
                         }
-                        System.out.println(session_profil);
-                    }
-                }
-
-                // get session si annoté session
-                if (method.isAnnotationPresent(Session.class)) {
-                    Method method_session = new_class.getMethod("addSession", String.class, Object.class);
-                    method_session.setAccessible(true);
-                    for (Enumeration<String> e = httpSession.getAttributeNames(); e.hasMoreElements();) {
-                        String key = (String) e.nextElement();
-                        method_session.invoke(instance, key, httpSession.getAttribute(key));
-                    }
-                    method_session.setAccessible(false);
-                }
-
-                if (returnObj instanceof ModelView) {
-
-                    mv = (ModelView) returnObj;
-                    // set session
-                    HashMap<String, Object> mvSession = mv.getSession();
-                    if (mvSession != null && mvSession.isEmpty() == false) {
-                        System.out.println("miditra");
-
-                        Set<String> keys = mvSession.keySet();
-                        for (String key : keys) {
-                            httpSession.setAttribute(key, mvSession.get(key));
-                        }
-                    } else {
-                        if (method.getName().equalsIgnoreCase("authentificate")) {
-                            throw new Exception("Authentification failed");
-                            // retourne un message d'erreur dans le view suivant si authentification échoué
+                        if (auth.value().equals("") == false) {
+                            Object profil = httpSession.getAttribute(session_profil);
+                            if (profil == null) {
+                                throw new Exception("Methode non authorise. Acces refuse");
+                            }
+                            System.out.println(session_profil);
                         }
                     }
 
-                    // si la méthode expire la session
-                    if (mv.isInvalidateSession() == true) {
-                        httpSession.invalidate();
+                    // get session si annoté session
+                    if (method.isAnnotationPresent(Session.class)) {
+                        Method method_session = new_class.getMethod("addSession", String.class, Object.class);
+                        method_session.setAccessible(true);
+                        for (Enumeration<String> e = httpSession.getAttributeNames(); e.hasMoreElements();) {
+                            String key = (String) e.nextElement();
+                            method_session.invoke(instance, key, httpSession.getAttribute(key));
+                        }
+                        method_session.setAccessible(false);
                     }
 
-                    // récupération des données dans le modelView
-                    HashMap<String, Object> data = mv.getData();
+                    if (returnObj instanceof ModelView) {
 
-                    // si modelview avec retour JSON
-                    if (mv.isJSON()) {
-                        res.setContentType("application/json");
-                        String datum = util.toJson(data);
-                        out = res.getWriter();
-                        out.println(datum);
-                    } else {
-                        if (data != null) {
-                            Set<String> keys = data.keySet();
+                        mv = (ModelView) returnObj;
+                        // set session
+                        HashMap<String, Object> mvSession = mv.getSession();
+                        if (mvSession != null && mvSession.isEmpty() == false) {
+                            System.out.println("miditra");
+
+                            Set<String> keys = mvSession.keySet();
                             for (String key : keys) {
-                                req.setAttribute(key, data.get(key));
+                                httpSession.setAttribute(key, mvSession.get(key));
+                            }
+                        } else {
+                            if (method.getName().equalsIgnoreCase("authentificate")) {
+                                throw new Exception("Authentification failed");
+                                // retourne un message d'erreur dans le view suivant si authentification échoué
                             }
                         }
-                        // req.setAttribute("singleton", appel_singleton);
-                        RequestDispatcher dispat = req.getRequestDispatcher(mv.getView());
-                        dispat.forward(req, res);
+
+                        // si la méthode expire la session
+                        if (mv.isInvalidateSession() == true) {
+                            httpSession.invalidate();
+                        }
+
+                        // récupération des données dans le modelView
+                        HashMap<String, Object> data = mv.getData();
+
+                        // si modelview avec retour JSON
+                        if (mv.isJSON()) {
+                            res.setContentType("application/json");
+                            String datum = util.toJson(data);
+                            out = res.getWriter();
+                            out.println(datum);
+                        } else {
+                            if (data != null) {
+                                Set<String> keys = data.keySet();
+                                for (String key : keys) {
+                                    req.setAttribute(key, data.get(key));
+                                }
+                            }
+                            // req.setAttribute("singleton", appel_singleton);
+                            RequestDispatcher dispat = req.getRequestDispatcher(mv.getView());
+                            dispat.forward(req, res);
+                        }
+                    } else {
+                        if (method.isAnnotationPresent(JSON.class)) {
+                            if (method.isAnnotationPresent(RequestMethod.class)) {
+                                if (method.getAnnotation(RequestMethod.class).value().equalsIgnoreCase(requestMethod)) {
+                                    res.setContentType("application/json");
+                                    String datum = util.toJson(returnObj);
+                                    out = res.getWriter();
+                                    out.println(datum);
+                                    res.setStatus(HttpServletResponse.SC_OK);
+                                } else {
+                                    res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                                }
+                            } else {
+                                res.setContentType("application/json");
+                                String datum = util.toJson(returnObj);
+                                out = res.getWriter();
+                                out.println(datum);
+                                res.setStatus(HttpServletResponse.SC_OK);
+                            }
+                        } else
+                            out.println("Méthode non Supporté");
                     }
-                } else {
-                    if (method.isAnnotationPresent(JSON.class)) {
-                        res.setContentType("application/json");
-                        String datum = util.toJson(returnObj);
-                        out = res.getWriter();
-                        out.println(datum);
-                    } else
-                        out.println("Méthode non Supporté");
                 }
             } catch (Exception e) {
                 out.println(e.getMessage());
