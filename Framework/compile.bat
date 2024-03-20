@@ -7,22 +7,28 @@ set classes=%dossier%\WEB-INF\classes
 mkdir %classes%
 
 javac --release 8 -d . JSON.java
-javac --release 8 -d . RequestMethod.java
 javac --release 8 -d . Session.java
 javac --release 8 -d . Scope.java
 javac --release 8 -d . Auth.java
 javac --release 8 -d . Urls.java
 javac --release 8 -d . ParamList.java
 javac --release 8 -d . Param.java
+
 javac --release 8 -d . Mapping.java
 javac --release 8 -d . FileUpload.java
 javac --release 8 -d . ModelView.java
 javac --release 8 -d . Util.java
 
+javac --release 8 -d . Connect.java
 javac --release 8 -d . GenericDAO.java
 javac --release 8 -d . ResponseAPI.java
+
 javac --release 8 -d . MVCController.java
 javac --release 8 -d . MVCModel.java
+javac --release 8 -d . ForeignKey.java
+javac --release 8 -d . Column.java
+javac --release 8 -d . Id.java
+javac --release 8 -d . Table.java
 
 javac --release 8 -d . FrontServlet.java
 

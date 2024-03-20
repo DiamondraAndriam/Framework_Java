@@ -162,9 +162,82 @@
                     }
 
                 },
+                "karana" : {
+                    "template" : "Template.code",
+                    "repository": "", 
+                    "listSyntax" : "List<?>",
+                    "isOneRepository":"false",
+                    "imports" : {
+                        "controller":[
+                            "entity.className",
+                            "com.karana.etu2060.framework.annotation.*",
+                            "com.karana.etu2060.framework.annotation.property.*",
+                            "com.dao.database.GenericDao"
+                        ],
+                        "entity":[
+                            "com.dao.annotation.*",
+                            "com.dao.annotation.conf.ForeignType"
+                        ],
+                        "repository":[
+
+                        ]
+                    },
+                    "annotationProperty" : {
+                        "table": "Table(name = \"?\")",
+                        "autoIncrement":"GeneratedValue(autoIncrement = true)",
+                        "column": "Column(name = \"?\")",
+                        "entity": "",
+                        "controller": "",
+                        "constraints": {
+                            "primaryKey": "PrimaryKey",
+                            "foreignKey": {
+                                "annotation":"ForeignKey(mappedBy = \"?\", foreignType = ForeignType.OneToMany)",
+                                "manyToOne":"",
+                                "manyToMany":"",
+                                "oneToMany":"",
+                                "oneToOne":""
+                            }
+                        }
+                    },
+                    "crudMethod" : {
+                        "findAll": "try{\n\treturn GenericDao.findAll(null, entity);\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
+                        "findById":"try{\n\treturn GenericDao.findById(null, #Id#);\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
+                        "delete": "try{\n\tGenericDao.delete(null, #object#);\n\treturn \"deleted successfully\";\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
+                        "update": "try{\n\tGenericDao.update(null, #object#);\n\treturn \"updated successfully\";\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
+                        "save": "try{\n\tGenericDao.save(null, #object#);\n\treturn \"saved successfully\";\n}catch(Exception e){\n\treturn \"Bad request\";\n}"
+                    },
+                    "controllerProperty" : {
+                        "path": "",
+                        "get": "Url(url = \"find-?.do\")\n@Json(method = JsonMethods.GET)",
+                        "post": "Url(url = \"save-?.do\")\n@Json(method = JsonMethods.POST)",
+                        "put": "Url(url = \"update-?.do\")\n@Json(method = JsonMethods.PUT)",
+                        "delete": "Url(url = \"delete-?.do\")\n@Json(method = JsonMethods.DELETE)",
+                        "classSyntax": "?Model",
+                        "name":"Model",
+                        "includedTerms":"",
+                        "field": "private ? entity = new ?();",
+                        "returnType": "Object",
+                        "returnTypeDelete": "void",
+                        "pathSyntax":"?",
+                        "annotationField": "",
+                        "annotationMethodParameter":"",
+                        "annotationArgumentParameterFormData":"Argument",
+                        "annotationArgumentParameterLink":"",
+                        "constructor":""
+                    },
+                    "repositoryProperty" : {
+                        "name":"",
+                        "classSyntax": "",
+                        "fieldSyntax":"",
+                        "constructor":""
+
+                    }
+                },
                 "java-framework" : {
                     "template" : "Template.code",
                     "repository": "",
+                    "listSyntax" : "List<?>",
+                    "isOneRepository":"true",
                     "imports" : {
                         "controller":[
                             "entity.className",
@@ -172,7 +245,8 @@
                             "etu1748.framework.*"
                         ],
                         "entity":[
-                            "etu1748.framework.annotation.*"
+                        ],
+                        "repository":[
                         ]
                     },
                     "annotationProperty" : {
@@ -201,19 +275,29 @@
                     },
                     "controllerProperty" : {
                         "path": "",
-                        "get": "Urls(\"?\")\n@JSON\n@RequestMethod(\"GET\")",
-                        "post": "Urls(\"?/new\")\n@JSON\n@RequestMethod(\"POST\")",
-                        "put": "Urls(\"?/update\")\n@JSON\n@RequestMethod(\"PUT\")",
-                        "delete": "Urls(\"?/delete\")\n@JSON\n@RequestMethod(\"DELETE\")",
-                        "field": "private ? #object#",
+                        "get": "Urls(\"?/find.do\")\n@JSON(\"GET\")",
+                        "post": "Urls(\"?/new.do\")\n@JSON(\"POST\")",
+                        "put": "Urls(\"?/update.do\")\n@JSON(\"PUT\")",
+                        "delete": "Urls(\"?/delete.do\")\n@JSON(\"DELETE\")",
+                        "field": "private ? #object# = new ?()",
+                        "classSyntax": "?Model",
+                        "name":"Model",
+                        "includedTerms":"",
                         "returnType": "ResponseAPI",
+                        "returnTypeDelete": "ResponseAPI",
+                        "pathSyntax":"?",
                         "annotationField": "",
                         "annotationMethodParameter":"",
                         "annotationArgumentParameterFormData":"Param",
                         "annotationArgumentParameterLink":"",
                         "constructor": ""
                     },
-                    "repositoryProperty" : {}
+                    "repositoryProperty" : {
+                        "name":"",
+                        "classSyntax": "",
+                        "fieldSyntax":"",
+                        "constructor":""
+                    }
                 }
             }
         }

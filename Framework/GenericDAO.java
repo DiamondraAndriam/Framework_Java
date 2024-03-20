@@ -4,9 +4,6 @@ import java.sql.*;
 import java.sql.Date;
 import java.util.*;
 
-import data.Connect;
-import etu1748.framework.FileUpload;
-
 import java.lang.reflect.*;
 
 public class GenericDAO {
@@ -126,36 +123,38 @@ public class GenericDAO {
     }
 
     // crée une table dans la base de données
-    /*public static void createTable(Object o) throws Exception {
-        String request = requestToTable(o);
-        executeUpdate(request);
-    }
-
-    // les requêtes pour createTable
-    /*public static String requestToTable(Object o) throws Exception {
-        Field[] fields = getFields(o);
-        for (Field field : fields) {
-            Class<?> type = field.getType();
-            field.setAccessible(true);
-            if (type == int.class || type == Integer.class) {
-
-            } else if (type == float.class || type == Float.class) {
-
-            } else if (type == double.class || type == Double.class) {
-
-            } else if (type == boolean.class || type == Boolean.class) {
-
-            } else if (type == Date.class) {
-
-            } else if (type == String.class) {
-
-            } else {
-
-            }
-            field.setAccessible(false);
-        }
-        return null;
-    }*/
+    /*
+     * public static void createTable(Object o) throws Exception {
+     * String request = requestToTable(o);
+     * executeUpdate(request);
+     * }
+     * 
+     * // les requêtes pour createTable
+     * /*public static String requestToTable(Object o) throws Exception {
+     * Field[] fields = getFields(o);
+     * for (Field field : fields) {
+     * Class<?> type = field.getType();
+     * field.setAccessible(true);
+     * if (type == int.class || type == Integer.class) {
+     * 
+     * } else if (type == float.class || type == Float.class) {
+     * 
+     * } else if (type == double.class || type == Double.class) {
+     * 
+     * } else if (type == boolean.class || type == Boolean.class) {
+     * 
+     * } else if (type == Date.class) {
+     * 
+     * } else if (type == String.class) {
+     * 
+     * } else {
+     * 
+     * }
+     * field.setAccessible(false);
+     * }
+     * return null;
+     * }
+     */
 
     // insérer dans la table spécifidque à l'objet
     public static void insert(Object o) throws Exception {
@@ -192,12 +191,13 @@ public class GenericDAO {
                 FileUpload file = (FileUpload) field.get(o);
                 if (file != null) {
                     values += "'" + file.getName() + "'";
-                    /*request += ",bytes";
-                    values += "," + bytesToHexString(file.getFile());
-                */} else {
+                    /*
+                     * request += ",bytes";
+                     * values += "," + bytesToHexString(file.getFile());
+                     */} else {
                     values += "''";
                 }
-            } else { 
+            } else {
                 values += field.get(o);
             }
             field.setAccessible(false);

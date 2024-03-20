@@ -1,4 +1,4 @@
-package data;
+package etu1748.framework;
 
 import java.sql.*;
 
