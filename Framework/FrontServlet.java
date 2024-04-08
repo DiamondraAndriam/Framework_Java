@@ -172,11 +172,13 @@ public class FrontServlet extends HttpServlet {
 
     public void action(HttpServletRequest req, HttpServletResponse res, String requestMethod, Mapping map)
             throws IOException, ServletException {
+        System.out.println("Mahita url");
+        System.out.println("Classe: " + map.getClassName() + "\nMethode:" + map.getMethod() + "\n");
         // url trouvé
         PrintWriter out = res.getWriter();
         HttpSession httpSession = req.getSession();
         try {
-            Object instance = null;
+            Object instance = null; // instance d'objet relié à l'url appelé
             Object returnObj = null; // retour de la fonction associé à l'url
             ModelView mv = null; // retour si ModelView
             Method method = null;
@@ -204,8 +206,9 @@ public class FrontServlet extends HttpServlet {
                 method = new_class.getDeclaredMethod(map.getMethod());
 
                 // si la requête a des paramètres
-                if (req.getParameterMap().isEmpty() == false)
+                if (req.getParameterMap().isEmpty() == false && method.isAnnotationPresent(JSON.class) == false) {
                     autoset(req, instance, requestMethod);
+                }
 
             } catch (Exception e) {
                 method = Util.findMethod(map.getMethod(), new_class);
@@ -216,7 +219,19 @@ public class FrontServlet extends HttpServlet {
                 // méthode avec des paramètres
                 params = method.getParameters();
                 // System.out.println("manao set parameter");
-                paramsValue = setMethod(method, req, params);
+
+                if (params.length == 1 && new_class.isAnnotationPresent(MVCController.class)
+                        && method.isAnnotationPresent(JSON.class)) {
+                    if (!params[0].getType().equals(new_class.getDeclaredFields()[0].getType())) {
+                        System.out.println(params[0].getType().getName());
+                        System.out.println(new_class.getDeclaredFields()[0].getType());
+                        throw new Exception("Erreur de création d'objet pour la classe : " + new_class.getName());
+                    }
+                    paramsValue = new Object[1];
+                    paramsValue[0] = Util.getJSONContent(req, params[0].getType());
+                } else {
+                    paramsValue = setMethod(method, req, params);
+                }
                 // System.out.println(paramsValue);
             }
 
@@ -305,31 +320,46 @@ public class FrontServlet extends HttpServlet {
                     dispat.forward(req, res);
                 }
             } else {
-                //check si API REST
+                // check si API REST
                 if (method.isAnnotationPresent(JSON.class)) {
                     if (method.getAnnotation(JSON.class).value() != null) {
                         if (method.getAnnotation(JSON.class).value().equalsIgnoreCase(requestMethod)) {
                             res.setContentType("application/json");
+                            if (returnObj instanceof ResponseAPI && returnObj != null) {
+                                if (((ResponseAPI) returnObj).getError() == null)
+                                    res.setStatus(HttpServletResponse.SC_OK);
+                                else {
+                                    res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                                    ((ResponseAPI) returnObj).setStatus(500);
+                                }
+                            } else {
+                                res.setStatus(HttpServletResponse.SC_OK);
+                            }
                             String datum = util.toJson(returnObj);
                             out = res.getWriter();
                             out.println(datum);
-                            res.setStatus(HttpServletResponse.SC_OK);
                         } else {
                             res.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
                         }
                     } else {
-                        res.setContentType("application/json");
-                        String datum = util.toJson(returnObj);
-                        out = res.getWriter();
-                        out.println(datum);
                         res.setStatus(HttpServletResponse.SC_OK);
+                        if (returnObj != null) {
+                            res.setContentType("application/json");
+                            String datum = util.toJson(returnObj);
+                            out = res.getWriter();
+                            out.println(datum);
+                        }
                     }
                 } else
                     res.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             }
         } catch (Exception e) {
-            out.println(e.getMessage());
-            e.printStackTrace();
+            System.out.println("Exception");
+            e.printStackTrace(System.out);
+            res.setContentType("application/json");
+            out = res.getWriter();
+            out.println("{\"erreur\":\"" + e.getMessage() + "\"}");
+            res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 

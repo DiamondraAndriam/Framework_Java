@@ -157,4 +157,15 @@ public class Util {
         Gson gson = builder.create();
         return gson.toJson(objet);
     }
+
+    public static Object getJSONContent(HttpServletRequest req, Class<?> classe) throws IOException{
+        StringBuilder sb = new StringBuilder();
+        BufferedReader reader = req.getReader();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
+        Gson gson = new Gson();
+        return gson.fromJson(sb.toString(), classe);
+    }
 }

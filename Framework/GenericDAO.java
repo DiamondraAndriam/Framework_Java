@@ -4,11 +4,18 @@ import java.sql.*;
 import java.sql.Date;
 import java.util.*;
 
+import etu1748.framework.annotation.*;
+
 import java.lang.reflect.*;
 
 public class GenericDAO {
+    static Connect connect = new Connect();
+
     // donne le nom de la table
     public static String getTable(Object o) {
+        if (o.getClass().isAnnotationPresent(Table.class)) {
+            return o.getClass().getAnnotation(Table.class).value();
+        }
         return o.getClass().getSimpleName();
     }
 
@@ -64,13 +71,15 @@ public class GenericDAO {
     }
 
     // les requêtes pour les fonctions findById
-    public static String requestFindById(Object o, int id) {
-        String request = "SELECT * FROM " + getTable(o) + " WHERE id = " + id;
+    public static String requestFindById(Object o, int id) throws Exception {
+        String idColumn = getIdColumnName(o);
+        String request = "SELECT * FROM " + getTable(o) + " WHERE " + idColumn + " = " + id;
         return request;
     }
 
-    public static String requestFindById(Object o, String id) {
-        String request = "SELECT * FROM " + getTable(o) + " WHERE id = " + id;
+    public static String requestFindById(Object o, String id) throws Exception {
+        String idColumn = getIdColumnName(o);
+        String request = "SELECT * FROM " + getTable(o) + " WHERE " + idColumn + " = " + id;
         return request;
     }
 
@@ -122,45 +131,14 @@ public class GenericDAO {
         return request + " WHERE " + condition;
     }
 
-    // crée une table dans la base de données
-    /*
-     * public static void createTable(Object o) throws Exception {
-     * String request = requestToTable(o);
-     * executeUpdate(request);
-     * }
-     * 
-     * // les requêtes pour createTable
-     * /*public static String requestToTable(Object o) throws Exception {
-     * Field[] fields = getFields(o);
-     * for (Field field : fields) {
-     * Class<?> type = field.getType();
-     * field.setAccessible(true);
-     * if (type == int.class || type == Integer.class) {
-     * 
-     * } else if (type == float.class || type == Float.class) {
-     * 
-     * } else if (type == double.class || type == Double.class) {
-     * 
-     * } else if (type == boolean.class || type == Boolean.class) {
-     * 
-     * } else if (type == Date.class) {
-     * 
-     * } else if (type == String.class) {
-     * 
-     * } else {
-     * 
-     * }
-     * field.setAccessible(false);
-     * }
-     * return null;
-     * }
-     */
-
     // insérer dans la table spécifidque à l'objet
-    public static void insert(Object o) throws Exception {
+    public static List<Object> insert(Object o) throws Exception {
         String request = requestToInsert(o);
         // System.out.println(request);
         executeUpdate(request);
+        List<Object> value = new ArrayList<>();
+        value.add(o);
+        return value;
     }
 
     // les requêtes pour insert
@@ -174,37 +152,55 @@ public class GenericDAO {
                 request += ",";
                 values += ",";
             }
-            request += field.getName();
-            Class<?> type = field.getType();
-            field.setAccessible(true);
-            if (type == int.class || type == Integer.class) {
-                values += field.getInt(o);
-            } else if (type == float.class || type == Float.class) {
-                values += field.getFloat(o);
-            } else if (type == double.class || type == Double.class) {
-                values += field.getDouble(o);
-            } else if (type == boolean.class || type == Boolean.class) {
-                values += field.getBoolean(o);
-            } else if (type == String.class || type == Date.class) {
-                values += "'" + field.get(o) + "'";
-            } else if (type == FileUpload.class) {
-                FileUpload file = (FileUpload) field.get(o);
-                if (file != null) {
-                    values += "'" + file.getName() + "'";
-                    /*
-                     * request += ",bytes";
-                     * values += "," + bytesToHexString(file.getFile());
-                     */} else {
-                    values += "''";
+            if (!field.isAnnotationPresent(GenerationAUTO.class)) {
+                if (field.isAnnotationPresent(Column.class))
+                    request += field.getAnnotation(Column.class).value();
+                else
+                    request += field.getName();
+                Class<?> type = field.getType();
+                field.setAccessible(true);
+                if (type == int.class || type == Integer.class) {
+                    values += field.getInt(o);
+                } else if (type == float.class || type == Float.class) {
+                    values += field.getFloat(o);
+                } else if (type == double.class || type == Double.class) {
+                    values += field.getDouble(o);
+                } else if (type == boolean.class || type == Boolean.class) {
+                    values += field.getBoolean(o);
+                } else if (type == String.class || type == Date.class) {
+                    values += "'" + field.get(o) + "'";
+                } else if (type == FileUpload.class) {
+                    FileUpload file = (FileUpload) field.get(o);
+                    if (file != null) {
+                        values += "'" + file.getName() + "'";
+                        /*
+                         * request += ",bytes";
+                         * values += "," + bytesToHexString(file.getFile());
+                         */} else {
+                        values += "''";
+                    }
+                } else {
+                    if (field.isAnnotationPresent(ForeignKey.class)) {
+                        Object fk = field.get(o);
+                        Field id = getIdField(fk);
+                        if (id.getType() == int.class || id.getType() == Integer.class) {
+                            values += id.getInt(fk);
+                        } else if (id.getType() == String.class || id.getType() == Date.class) {
+                            values += "'" + id.get(fk) + "'";
+                        } else {
+                            values += id.get(fk);
+                        }
+                    } else {
+                        values += field.get(o);
+                    }
                 }
-            } else {
-                values += field.get(o);
+                field.setAccessible(false);
+                i++;
             }
-            field.setAccessible(false);
-            i++;
         }
         request += ")";
         values += ")";
+        System.out.println(request + values);
         return request + values;
     }
 
@@ -217,16 +213,22 @@ public class GenericDAO {
     }
 
     // mettre à jour la table pour l'objet (* l'identifiant n'a pas changé et connu)
-    public static void update(Object o, int id) throws Exception {
+    public static List<Object> update(Object o, int id) throws Exception {
         String request = requestToUpdate(o, id);
         executeUpdate(request);
+        List<Object> value = new ArrayList<>();
+        value.add(o);
+        return value;
     }
 
     // mettre à jour la table pour l'objet (* l'identifiant n'a pas changé et connu)
-    public static void update(Object o, String id) throws Exception {
+    public static List<Object> update(Object o, String id) throws Exception {
         String request = requestToUpdate(o, id);
         System.out.println(request);
         executeUpdate(request);
+        List<Object> value = new ArrayList<>();
+        value.add(o);
+        return value;
     }
 
     // les requêtes pour update
@@ -238,69 +240,109 @@ public class GenericDAO {
             if (i != 0) {
                 request += ",";
             }
-            Class<?> type = field.getType();
-            field.setAccessible(true);
-            request += field.getName() + "=";
-            if (type == int.class || type == Integer.class) {
-                request += field.getInt(o);
-            } else if (type == float.class || type == Float.class) {
-                request += field.getFloat(o);
-            } else if (type == double.class || type == Double.class) {
-                request += field.getDouble(o);
-            } else if (type == boolean.class || type == Boolean.class) {
-                request += field.getBoolean(o);
-            } else if (type == FileUpload.class) {
-                FileUpload file = (FileUpload) field.get(o);
-                request += "'" + file.getName() + "'";
-            } else if (type == String.class || type == Date.class) {
-                request += "'" + field.get(o) + "'";
-            } else {
-                request += field.get(o);
+            if (!field.isAnnotationPresent(Id.class)) {
+                Class<?> type = field.getType();
+                field.setAccessible(true);
+                String fieldName = "";
+                if (field.isAnnotationPresent(Column.class)) {
+                    fieldName = field.getAnnotation(Column.class).value();
+                } else {
+                    fieldName = field.getName();
+                }
+                request += fieldName + "=";
+                if (type == int.class || type == Integer.class) {
+                    request += field.getInt(o);
+                } else if (type == float.class || type == Float.class) {
+                    request += field.getFloat(o);
+                } else if (type == double.class || type == Double.class) {
+                    request += field.getDouble(o);
+                } else if (type == boolean.class || type == Boolean.class) {
+                    request += field.getBoolean(o);
+                } else if (type == FileUpload.class) {
+                    FileUpload file = (FileUpload) field.get(o);
+                    request += "'" + file.getName() + "'";
+                } else if (type == String.class || type == Date.class) {
+                    request += "'" + field.get(o) + "'";
+                } else {
+                    request += field.get(o);
+                }
+                field.setAccessible(false);
+                i++;
             }
-            field.setAccessible(false);
-            i++;
         }
         return request;
     }
 
     public static String requestToUpdate(Object o, int id) throws Exception {
-        return requestToUpdate(o) + " WHERE id = " + id;
+        String idColumn = getIdColumnName(o);
+        return requestToUpdate(o) + " WHERE " + idColumn + " = " + id;
+    }
+
+    public static Field getIdField(Object o) throws Exception {
+        Field[] fields = getFields(o);
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(Id.class)) {
+                return field;
+            }
+        }
+        return null;
+    }
+
+    public static String getIdColumnName(Object o) throws Exception {
+        Field[] fields = getFields(o);
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(Id.class) && field.isAnnotationPresent(Column.class)) {
+                return field.getAnnotation(Column.class).value();
+            }
+        }
+        return "id";
     }
 
     // les requêtes pour update
     public static String requestToUpdate(Object o, String id) throws Exception {
-        return requestToUpdate(o) + " WHERE id = '" + id + "'";
+        String idColumn = getIdColumnName(o);
+        return requestToUpdate(o) + " WHERE " + idColumn + " = '" + id + "'";
     }
 
     // supprimer (* l'identifiant est connu)
-    public static void delete(Object o, int id) throws Exception {
+    public static List<Object> delete(Object o, int id) throws Exception {
         String request = requestToDelete(o, id);
         executeUpdate(request);
+        return null;
     }
 
     // les requêtes pour delete
-    public static String requestToDelete(Object o, int id) {
-        return "DELETE FROM " + getTable(o) + " WHERE id =" + id;
+    public static String requestToDelete(Object o, int id) throws Exception {
+        String idColumn = getIdColumnName(o);
+        return "DELETE FROM " + getTable(o) + " WHERE " + idColumn + " =" + id;
     }
 
     // supprimer (* l'identifiant est connu)
-    public static void delete(Object o, String id) throws Exception {
+    public static List<Object> delete(Object o, String id) throws Exception {
         String request = requestToDelete(o, id);
         executeUpdate(request);
+        return null;
     }
 
     // les requêtes pour delete
-    public static String requestToDelete(Object o, String id) {
-        return "DELETE FROM " + getTable(o) + " WHERE id = '" + id + "'";
+    public static String requestToDelete(Object o, String id) throws Exception {
+        String idColumn = getIdColumnName(o);
+        return "DELETE FROM " + getTable(o) + " WHERE " + idColumn + " = '" + id + "'";
     }
 
     // pour executer les requêtes qui retourne des objets
+    /**
+     * @param o
+     * @param request
+     * @return
+     * @throws Exception
+     */
     public static List<Object> executeQuery(Object o, String request) throws Exception {
         List<Object> liste = new ArrayList<>();
         Connection c = null;
         Statement stat = null;
         try {
-            c = Connect.postgres();
+            c = connect.connect();
             stat = c.createStatement();
             ResultSet resultat = stat.executeQuery(request);
             Constructor<?> construct = o.getClass().getDeclaredConstructor();
@@ -311,20 +353,39 @@ public class GenericDAO {
                 for (Field field : fields) {
                     Class<?> type = field.getType();
                     field.setAccessible(true);
-                    if (type == int.class || type == Integer.class) {
-                        field.set(object, resultat.getInt(i + 1));
-                    } else if (type == float.class || type == Float.class) {
-                        field.set(object, resultat.getFloat(i + 1));
-                    } else if (type == double.class || type == Double.class) {
-                        field.set(object, resultat.getDouble(i + 1));
-                    } else if (type == boolean.class || type == Boolean.class) {
-                        field.set(object, resultat.getBoolean(i + 1));
-                    } else if (type == Date.class) {
-                        field.set(object, resultat.getDate(i + 1));
-                    } else if (type == String.class) {
-                        field.set(object, resultat.getString(i + 1));
+                    if (!field.isAnnotationPresent(Column.class)) {
+                        if (type == int.class || type == Integer.class) {
+                            field.set(object, resultat.getInt(i + 1));
+                        } else if (type == float.class || type == Float.class) {
+                            field.set(object, resultat.getFloat(i + 1));
+                        } else if (type == double.class || type == Double.class) {
+                            field.set(object, resultat.getDouble(i + 1));
+                        } else if (type == boolean.class || type == Boolean.class) {
+                            field.set(object, resultat.getBoolean(i + 1));
+                        } else if (type == Date.class) {
+                            field.set(object, resultat.getDate(i + 1));
+                        } else if (type == String.class) {
+                            field.set(object, resultat.getString(i + 1));
+                        } else {
+                            field.set(object, resultat.getObject(i + 1));
+                        }
                     } else {
-                        field.set(object, resultat.getObject(i + 1));
+                        String column = field.getAnnotation(Column.class).value();
+                        if (type == int.class || type == Integer.class) {
+                            field.set(object, resultat.getInt(column));
+                        } else if (type == float.class || type == Float.class) {
+                            field.set(object, resultat.getFloat(column));
+                        } else if (type == double.class || type == Double.class) {
+                            field.set(object, resultat.getDouble(column));
+                        } else if (type == boolean.class || type == Boolean.class) {
+                            field.set(object, resultat.getBoolean(column));
+                        } else if (type == Date.class) {
+                            field.set(object, resultat.getDate(column));
+                        } else if (type == String.class) {
+                            field.set(object, resultat.getString(column));
+                        } else {
+                            field.set(object, resultat.getObject(column));
+                        }
                     }
                     field.setAccessible(false);
                     i++;
@@ -349,7 +410,7 @@ public class GenericDAO {
         Connection c = null;
         PreparedStatement stat = null;
         try {
-            c = Connect.postgres();
+            c = connect.connect();
             stat = c.prepareStatement(request);
             int line = stat.executeUpdate();
             if (line < 1)

@@ -19,16 +19,22 @@ javac --release 8 -d . FileUpload.java
 javac --release 8 -d . ModelView.java
 javac --release 8 -d . Util.java
 
+javac --release 8 -d . ManyToMany.java
+javac --release 8 -d . ManyToOne.java
+javac --release 8 -d . OneToOne.java
+javac --release 8 -d . OneToMany.java
+
+javac --release 8 -d . ForeignKey.java
+javac --release 8 -d . Column.java
+javac --release 8 -d . Id.java
+javac --release 8 -d . Table.java
+javac --release 8 -d . GenerationAUTO.java
+
 javac --release 8 -d . Connect.java
 javac --release 8 -d . GenericDAO.java
 javac --release 8 -d . ResponseAPI.java
 
 javac --release 8 -d . MVCController.java
-javac --release 8 -d . MVCModel.java
-javac --release 8 -d . ForeignKey.java
-javac --release 8 -d . Column.java
-javac --release 8 -d . Id.java
-javac --release 8 -d . Table.java
 
 javac --release 8 -d . FrontServlet.java
 

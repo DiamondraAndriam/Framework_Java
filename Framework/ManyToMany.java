@@ -1,11 +1,10 @@
 package etu1748.framework.annotation;
 
-import java.lang.annotation.ElementType;
-
 import java.lang.annotation.*;
+import java.lang.reflect.Field;
 
-@Target(ElementType.METHOD)
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface JSON {
+public @interface ManyToMany {
     String value() default "";
 }

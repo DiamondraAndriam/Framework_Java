@@ -1,74 +1,58 @@
-package com.framework.test.controller;
+package com.framework.controller;
 
-import com.framework.test.modele.Employe;
+import com.framework.entity.Employe;
 import etu1748.framework.annotation.*;
 import etu1748.framework.*;
 
+import java.util.List;
 
-public class EmployeController
- {
+@MVCController
 
-	private Employe employe;
+public class EmployeController {
+	private Employe employe = new Employe();
 
-
-	@Urls("employe/new")
-	@JSON
-	@RequestMethod("POST")
-	public ResponseAPI save(@Param Employe employe){
-	 	try {
-		List<Object> data = GenericDAO.insert(employe);
-		return new ResponseAPI(data, null);
+	@Urls("employe/new.do")
+	@JSON("POST")
+	public ResponseAPI save(@Param Employe employe) {
+		try {
+			List<Object> data = GenericDAO.insert(employe);
+			return new ResponseAPI(data, null);
 		} catch (Exception e) {
-		return new ResponseAPI(null, e.getMessage());
-		}
-	}
-	@Urls("employe/update")
-	@JSON
-	@RequestMethod("PUT")
-	public ResponseAPI update(@Param Employe employe){
-	 	try {
-		List<Object> data = GenericDAO.update(employe, employe.getId());
-		return new ResponseAPI(data, null);
-		} catch (Exception e) {
-		return new ResponseAPI(null, e.getMessage());
-		}
-	}
-	@Urls("employe/delete")
-	@JSON
-	@RequestMethod("DELETE")
-	public void delete(@Param Employe employe){
-	 	try {
-		List<Object> data = GenericDAO.delete(employe, employe.getId());
-		    return new ResponseAPI(data, null);
-		} catch (Exception e) {
-		    return new ResponseAPI(null, e.getMessage());
-		}
-	}
-	@Urls("employe")
-	@JSON
-	@RequestMethod("GET")
-	public ResponseAPI findAll(){
-	 	try {
-		List<Object> data = GenericDAO.findAll(employe);
-		return new ResponseAPI(data, null);
-		} catch (Exception e) {
-		return new ResponseAPI(null, e.getMessage());
-		}
-	}
-	@Urls("employe")
-	@JSON
-	@RequestMethod("GET")
-	public ResponseAPI findById(@Param Employe employe){
-	 	try {
-		List<Object> data = GenericDAO.findById(employe, employe.getId());
-		return new ResponseAPI(data, null);
-		} catch (Exception e) {
-		return new ResponseAPI(null, e.getMessage());
+			return new ResponseAPI(null, e.getMessage());
 		}
 	}
 
+	@Urls("employe/update.do")
+	@JSON("PUT")
+	public ResponseAPI update(@Param Employe employe) {
+		try {
+			List<Object> data = GenericDAO.update(employe, employe.getIdEmploye());
+			return new ResponseAPI(data, null);
+		} catch (Exception e) {
+			return new ResponseAPI(null, e.getMessage());
+		}
+	}
 
+	@Urls("employe/delete.do")
+	@JSON("DELETE")
+	public ResponseAPI delete(@Param Employe employe) {
+		try {
+			List<Object> data = GenericDAO.delete(employe, employe.getIdEmploye());
+			return new ResponseAPI(data, null);
+		} catch (Exception e) {
+			return new ResponseAPI(null, e.getMessage());
+		}
+	}
 
-
+	@Urls("employe/find.do")
+	@JSON("GET")
+	public ResponseAPI findAll() {
+		try {
+			List<Object> data = GenericDAO.findAll(employe);
+			return new ResponseAPI(data, null);
+		} catch (Exception e) {
+			return new ResponseAPI(null, e.getMessage());
+		}
+	}
 
 }
