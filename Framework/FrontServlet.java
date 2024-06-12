@@ -126,7 +126,10 @@ public class FrontServlet extends HttpServlet {
             for (int i = 0; i < params.length; i++) {
                 try {
                     paramType = params[i].getType();
-                    paramsValue[i] = Util.parseType(req.getParameter(paramsName[i]), paramType);
+                    if (method.isAnnotationPresent(JSON.class)) {
+                        // maka an'ilay parametre
+                    } else
+                        paramsValue[i] = Util.parseType(req.getParameter(paramsName[i]), paramType);
                 } catch (Exception e1) {
                     e1.printStackTrace();
                     throw new Exception("Erreur avec le paramètre : " + paramsName[i]);
@@ -144,7 +147,10 @@ public class FrontServlet extends HttpServlet {
                         param = paramsName[i];
                     else
                         param = params[i].getName();
-                    paramsValue[i] = Util.parseType(req.getParameter(param), paramType);
+                    if (method.isAnnotationPresent(JSON.class)) {
+                        // maka an'ilay parametre
+                    } else
+                        paramsValue[i] = Util.parseType(req.getParameter(param), paramType);
                 } catch (Exception e1) {
                     e1.printStackTrace();
                     throw new Exception("Erreur avec le paramètre : " + params[i].getName());
@@ -157,6 +163,16 @@ public class FrontServlet extends HttpServlet {
     // main process
     protected void processRequest(HttpServletRequest req, HttpServletResponse res, String requestMethod)
             throws IOException, ServletException {
+
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+        if (req.getMethod().equals("OPTIONS")) {
+            res.setStatus(202);
+        } else {
+
+        }
 
         // prendre l'url demandé et chercher si l'url existe
         String url = Util.getBaseURL(req.getRequestURL().toString());
@@ -186,7 +202,7 @@ public class FrontServlet extends HttpServlet {
             Object[] paramsValue = null;
             Class<?> new_class = Class.forName(map.getClassName());
 
-            // tester si singleton
+            // instanciation classe sauf singleton
             if (singletons.containsKey(map.getClassName())) {
                 instance = singletons.get(map.getClassName());
                 if (instance == null) {
@@ -204,13 +220,24 @@ public class FrontServlet extends HttpServlet {
             try {
                 // méthode sans paramètre
                 method = new_class.getDeclaredMethod(map.getMethod());
-
                 // si la requête a des paramètres
                 if (req.getParameterMap().isEmpty() == false && method.isAnnotationPresent(JSON.class) == false) {
                     autoset(req, instance, requestMethod);
                 }
-
+                if (method.isAnnotationPresent(Paginate.class)) {
+                    System.out.println("miditra pagination");
+                    if (instance.getClass().getDeclaredField("pagination") != null) {
+                        Field paginationField = instance.getClass().getDeclaredField("pagination");
+                        if (paginationField.getType() == Pagination.class) {
+                            Pagination pages = (Pagination) Util.getJSONContent(req, Pagination.class);
+                            paginationField.setAccessible(true);
+                            paginationField.set(instance, pages);
+                            paginationField.setAccessible(false);
+                        }
+                    }
+                }
             } catch (Exception e) {
+                System.out.println("Miditra exception");
                 method = Util.findMethod(map.getMethod(), new_class);
                 if (method == null)
                     throw new Exception(
@@ -223,16 +250,56 @@ public class FrontServlet extends HttpServlet {
                 if (params.length == 1 && new_class.isAnnotationPresent(MVCController.class)
                         && method.isAnnotationPresent(JSON.class)) {
                     if (!params[0].getType().equals(new_class.getDeclaredFields()[0].getType())) {
-                        System.out.println(params[0].getType().getName());
-                        System.out.println(new_class.getDeclaredFields()[0].getType());
                         throw new Exception("Erreur de création d'objet pour la classe : " + new_class.getName());
                     }
                     paramsValue = new Object[1];
                     paramsValue[0] = Util.getJSONContent(req, params[0].getType());
+                    System.out.println(paramsValue[0]);
                 } else {
                     paramsValue = setMethod(method, req, params);
                 }
                 // System.out.println(paramsValue);
+            }
+
+            // test si besoin d'authentification
+            if (method.isAnnotationPresent(Auth.class)) {
+                Auth auth = method.getAnnotation(Auth.class);
+                if (!method.isAnnotationPresent(JSON.class)) {
+                    Object connected = httpSession.getAttribute(session_connection);
+                    System.out.println(session_connection);
+                    if (connected == null) {
+                        throw new NotAuthorizedException("Methode non authorisé. Se connecter");
+                    }
+                    if (auth.value().equals("") == false) {
+                        Object profil = httpSession.getAttribute(session_profil);
+                        if (profil == null) {
+                            throw new NotAuthorizedException("Methode non authorisé. Acces refusé");
+                        }
+                        System.out.println(session_profil);
+                    }
+                } else {
+
+                    try {
+                        // check token si existe
+                        String token = Util.getToken(req);
+                        List<String> tokenInConfig = Util.getConfigToken();
+                        boolean contains = false;
+                        if (tokenInConfig == null || token == null)
+                            throw new NotAuthorizedException("Methode non authorisé. Se connecter");
+                        for (String string : tokenInConfig) {
+                            if (token.equals(string)) {
+                                contains = true;
+                                break;
+                            }
+                        }
+                        if (!contains)
+                            throw new NotAuthorizedException("Methode non authorisé. Se connecter");
+                        // check token si correspond
+                    } catch (Exception e) {
+                        // mi throws non autorisé
+                        throw e;
+                    }
+                }
             }
 
             // invocation de la méthode
@@ -244,24 +311,6 @@ public class FrontServlet extends HttpServlet {
             }
             // System.out.println("mv:" + mv);
             // System.out.println("tonga eto");
-
-            // test si besoin d'authentification
-            if (method.isAnnotationPresent(Auth.class)) {
-                Auth auth = method.getAnnotation(Auth.class);
-                Object connected = httpSession.getAttribute(session_connection);
-                System.out.println(session_connection);
-
-                if (connected == null) {
-                    throw new Exception("Methode non authorisé. Se connecter");
-                }
-                if (auth.value().equals("") == false) {
-                    Object profil = httpSession.getAttribute(session_profil);
-                    if (profil == null) {
-                        throw new Exception("Methode non authorisé. Acces refusé");
-                    }
-                    System.out.println(session_profil);
-                }
-            }
 
             // get session si annoté session
             if (method.isAnnotationPresent(Session.class)) {
@@ -353,12 +402,19 @@ public class FrontServlet extends HttpServlet {
                 } else
                     res.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
             }
+        } catch (NotAuthorizedException e) {
+            System.out.println("Exception");
+            e.printStackTrace(System.out);
+            res.setContentType("application/json");
+            out = res.getWriter();
+            out.println("{\"erreur\":\"" + e.getMessage() + "\",\"status\":401}");
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         } catch (Exception e) {
             System.out.println("Exception");
             e.printStackTrace(System.out);
             res.setContentType("application/json");
             out = res.getWriter();
-            out.println("{\"erreur\":\"" + e.getMessage() + "\"}");
+            out.println("{\"erreur\":\"" + e.getMessage() + "\",\"status\":500}");
             res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

@@ -10,6 +10,7 @@ import java.util.List;
 
 public class EmployeController {
 	private Employe employe = new Employe();
+	private Pagination pagination;
 
 	@Urls("employe/new.do")
 	@JSON("POST")
@@ -46,9 +47,10 @@ public class EmployeController {
 
 	@Urls("employe/find.do")
 	@JSON("GET")
+	@Paginate
 	public ResponseAPI findAll() {
 		try {
-			List<Object> data = GenericDAO.findAll(employe);
+			List<Object> data = GenericDAO.findAll(employe, pagination);
 			return new ResponseAPI(data, null);
 		} catch (Exception e) {
 			return new ResponseAPI(null, e.getMessage());

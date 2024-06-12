@@ -1,0 +1,12 @@
+[
+    {
+        "method":"findAll",
+        "profil":"simple",
+        "token":"702feecf-cec3-4109-a4f3-d936590773cb"
+    },
+    {
+        "method":["findAll","update","delete","save"],
+        "profil":"admin",
+        "token":"ee13d8a7-985d-49fc-b27c-2f1ec8b4c047"
+    }
+]

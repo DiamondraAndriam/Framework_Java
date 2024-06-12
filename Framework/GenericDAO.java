@@ -59,14 +59,31 @@ public class GenericDAO {
     // donne l'objet identifié par un int
     public static List<Object> findById(Object o, int id) throws Exception {
         String request = requestFindById(o, id);
-        List<Object> result = executeQuery(o, request);
+        List<Object> result = executeQuery(o, request, null);
         return result;
+    }
+
+    // donne l'objet identifié par un string
+    public static List<Object> findById(Object o, Object id) throws Exception {
+        String request = "";
+        Field idField = getIdField(o);
+        System.out.println(id);
+        if (idField.getType() == String.class) {
+            request = requestFindById(o, String.valueOf(id));
+        } else if (idField.getType() == Integer.class || idField.getType() == int.class) {
+            request = requestFindById(o, Integer.valueOf(String.valueOf(id)));
+        }
+        System.out.println(request);
+        List<Object> result = executeQuery(o, request, null);
+        if (result.size() != 0)
+            return result;
+        return null;
     }
 
     // donne l'objet identifié par un string
     public static List<Object> findById(Object o, String id) throws Exception {
         String request = requestFindById(o, id);
-        List<Object> result = executeQuery(o, request);
+        List<Object> result = executeQuery(o, request, null);
         return result;
     }
 
@@ -84,22 +101,44 @@ public class GenericDAO {
     }
 
     // donne tous les éléments de la table
+    public static List<Object> findAll(Object o, Connection c) throws Exception {
+        String request = requestFindAll(o);
+        List<Object> result = executeQuery(o, request, c);
+        return result;
+    }
+
     public static List<Object> findAll(Object o) throws Exception {
         String request = requestFindAll(o);
-        List<Object> result = executeQuery(o, request);
+        List<Object> result = executeQuery(o, request, null);
         return result;
     }
 
     // donne tous les éléments de la vue représenté par un objet o et pas une table
     public static List<Object> findAll(Object o, String viewName) throws Exception {
         String request = requestFindAll(viewName);
-        List<Object> result = executeQuery(o, request);
+        List<Object> result = executeQuery(o, request, null);
+        return result;
+    }
+
+    // findAll avec pagination
+    public static List<Object> findAll(Object o, Pagination pagination) throws Exception {
+        final String request = requestFindAll(o, pagination);
+        List<Object> result = executeQuery(o, request, null);
         return result;
     }
 
     // les requêtes pour les fonctions findAll
     public static String requestFindAll(Object o) {
         return "SELECT * FROM " + getTable(o);
+    }
+
+    public static String requestFindAll(Object o, Pagination pagination) throws Exception {
+        // si base de données postgresql
+        if (pagination != null)
+            return "SELECT * FROM " + getTable(o) + " limit " + pagination.getLimit() + " offset "
+                    + pagination.getStart();
+        else
+            throw new Exception("Erreur: pagination nulle");
     }
 
     public static String requestFindAll(String viewName) {
@@ -109,14 +148,14 @@ public class GenericDAO {
     // donne tous les éléments d'une table avec une condition particulière
     public static List<Object> findAllSpec(Object o, String condition) throws Exception {
         String request = requestFindAllSpec(o, condition);
-        List<Object> result = executeQuery(o, request);
+        List<Object> result = executeQuery(o, request, null);
         return result;
     }
 
     // donne tous les éléments d'une vue avec une condition particulière
     public static List<Object> findAllSpec(Object o, String viewName, String condition) throws Exception {
         String request = requestFindAllSpec(o, condition);
-        List<Object> result = executeQuery(o, request);
+        List<Object> result = executeQuery(o, request, null);
         return result;
     }
 
@@ -134,11 +173,8 @@ public class GenericDAO {
     // insérer dans la table spécifidque à l'objet
     public static List<Object> insert(Object o) throws Exception {
         String request = requestToInsert(o);
-        // System.out.println(request);
-        executeUpdate(request);
-        List<Object> value = new ArrayList<>();
-        value.add(o);
-        return value;
+        executeUpdate(request, null);
+        return null;
     }
 
     // les requêtes pour insert
@@ -148,48 +184,42 @@ public class GenericDAO {
         Field[] fields = getFields(o);
         int i = 0;
         for (Field field : fields) {
-            if (i != 0) {
-                request += ",";
-                values += ",";
-            }
             if (!field.isAnnotationPresent(GenerationAUTO.class)) {
+                if (i != 0) {
+                    request += ",";
+                    values += ",";
+                }
                 if (field.isAnnotationPresent(Column.class))
                     request += field.getAnnotation(Column.class).value();
+                else if (field.isAnnotationPresent(ForeignKey.class))
+                    request += field.getAnnotation(ForeignKey.class).value();
                 else
                     request += field.getName();
                 Class<?> type = field.getType();
                 field.setAccessible(true);
-                if (type == int.class || type == Integer.class) {
-                    values += field.getInt(o);
-                } else if (type == float.class || type == Float.class) {
-                    values += field.getFloat(o);
-                } else if (type == double.class || type == Double.class) {
-                    values += field.getDouble(o);
-                } else if (type == boolean.class || type == Boolean.class) {
-                    values += field.getBoolean(o);
-                } else if (type == String.class || type == Date.class) {
+                if (type == String.class || type == Date.class) {
                     values += "'" + field.get(o) + "'";
                 } else if (type == FileUpload.class) {
                     FileUpload file = (FileUpload) field.get(o);
                     if (file != null) {
                         values += "'" + file.getName() + "'";
-                        /*
-                         * request += ",bytes";
-                         * values += "," + bytesToHexString(file.getFile());
-                         */} else {
+                    } else {
                         values += "''";
                     }
                 } else {
                     if (field.isAnnotationPresent(ForeignKey.class)) {
                         Object fk = field.get(o);
                         Field id = getIdField(fk);
+                        id.setAccessible(true);
                         if (id.getType() == int.class || id.getType() == Integer.class) {
-                            values += id.getInt(fk);
-                        } else if (id.getType() == String.class || id.getType() == Date.class) {
+                            System.out.println(id.get(fk));
+                            values += id.get(fk);
+                        } else if (id.getType() == String.class) {
                             values += "'" + id.get(fk) + "'";
                         } else {
                             values += id.get(fk);
                         }
+                        id.setAccessible(false);
                     } else {
                         values += field.get(o);
                     }
@@ -200,7 +230,6 @@ public class GenericDAO {
         }
         request += ")";
         values += ")";
-        System.out.println(request + values);
         return request + values;
     }
 
@@ -215,7 +244,7 @@ public class GenericDAO {
     // mettre à jour la table pour l'objet (* l'identifiant n'a pas changé et connu)
     public static List<Object> update(Object o, int id) throws Exception {
         String request = requestToUpdate(o, id);
-        executeUpdate(request);
+        executeUpdate(request, null);
         List<Object> value = new ArrayList<>();
         value.add(o);
         return value;
@@ -224,8 +253,7 @@ public class GenericDAO {
     // mettre à jour la table pour l'objet (* l'identifiant n'a pas changé et connu)
     public static List<Object> update(Object o, String id) throws Exception {
         String request = requestToUpdate(o, id);
-        System.out.println(request);
-        executeUpdate(request);
+        executeUpdate(request, null);
         List<Object> value = new ArrayList<>();
         value.add(o);
         return value;
@@ -237,34 +265,43 @@ public class GenericDAO {
         String request = "UPDATE " + getTable(o) + " SET ";
         int i = 0;
         for (Field field : fields) {
-            if (i != 0) {
-                request += ",";
-            }
             if (!field.isAnnotationPresent(Id.class)) {
+                if (i != 0) {
+                    request += ",";
+                }
                 Class<?> type = field.getType();
                 field.setAccessible(true);
                 String fieldName = "";
-                if (field.isAnnotationPresent(Column.class)) {
+                if (field.isAnnotationPresent(Column.class))
                     fieldName = field.getAnnotation(Column.class).value();
-                } else {
+                else if (field.isAnnotationPresent(ForeignKey.class))
+                    fieldName = field.getAnnotation(ForeignKey.class).value();
+                else
                     fieldName = field.getName();
-                }
                 request += fieldName + "=";
-                if (type == int.class || type == Integer.class) {
-                    request += field.getInt(o);
-                } else if (type == float.class || type == Float.class) {
-                    request += field.getFloat(o);
-                } else if (type == double.class || type == Double.class) {
-                    request += field.getDouble(o);
-                } else if (type == boolean.class || type == Boolean.class) {
-                    request += field.getBoolean(o);
-                } else if (type == FileUpload.class) {
+
+                if (type == FileUpload.class) {
                     FileUpload file = (FileUpload) field.get(o);
                     request += "'" + file.getName() + "'";
                 } else if (type == String.class || type == Date.class) {
                     request += "'" + field.get(o) + "'";
                 } else {
-                    request += field.get(o);
+                    if (field.isAnnotationPresent(ForeignKey.class)) {
+                        Object fk = field.get(o);
+                        Field id = getIdField(fk);
+                        id.setAccessible(true);
+                        if (id.getType() == int.class || id.getType() == Integer.class) {
+                            System.out.println(id.get(fk));
+                            request += id.get(fk);
+                        } else if (id.getType() == String.class) {
+                            request += "'" + id.get(fk) + "'";
+                        } else {
+                            request += id.get(fk);
+                        }
+                        id.setAccessible(false);
+                    } else {
+                        request += field.get(o);
+                    }
                 }
                 field.setAccessible(false);
                 i++;
@@ -307,7 +344,7 @@ public class GenericDAO {
     // supprimer (* l'identifiant est connu)
     public static List<Object> delete(Object o, int id) throws Exception {
         String request = requestToDelete(o, id);
-        executeUpdate(request);
+        executeUpdate(request, null);
         return null;
     }
 
@@ -320,7 +357,7 @@ public class GenericDAO {
     // supprimer (* l'identifiant est connu)
     public static List<Object> delete(Object o, String id) throws Exception {
         String request = requestToDelete(o, id);
-        executeUpdate(request);
+        executeUpdate(request, null);
         return null;
     }
 
@@ -330,19 +367,27 @@ public class GenericDAO {
         return "DELETE FROM " + getTable(o) + " WHERE " + idColumn + " = '" + id + "'";
     }
 
+    public static Object setForeignKey(Field field, Object id, Connection c) throws Exception {
+        Constructor<?> constructor = field.getType().getDeclaredConstructor();
+        Object attribut = constructor.newInstance();
+        List<Object> idObjects = findById(attribut, id);
+        if (idObjects != null)
+            return findById(attribut, id).get(0);
+        else
+            return null;
+    }
+
     // pour executer les requêtes qui retourne des objets
-    /**
-     * @param o
-     * @param request
-     * @return
-     * @throws Exception
-     */
-    public static List<Object> executeQuery(Object o, String request) throws Exception {
+    public static List<Object> executeQuery(Object o, String request, Connection c) throws Exception {
+        System.out.println(request);
         List<Object> liste = new ArrayList<>();
-        Connection c = null;
         Statement stat = null;
+        boolean newConnection = false;
         try {
-            c = connect.connect();
+            if (c == null) {
+                c = Connect.connect();
+                newConnection = true;
+            }
             stat = c.createStatement();
             ResultSet resultat = stat.executeQuery(request);
             Constructor<?> construct = o.getClass().getDeclaredConstructor();
@@ -353,9 +398,14 @@ public class GenericDAO {
                 for (Field field : fields) {
                     Class<?> type = field.getType();
                     field.setAccessible(true);
-                    if (!field.isAnnotationPresent(Column.class)) {
-                        if (type == int.class || type == Integer.class) {
-                            field.set(object, resultat.getInt(i + 1));
+                    String fieldName = field.getName();
+                    if (field.isAnnotationPresent(Column.class) == false) {
+                        if (field.isAnnotationPresent(ForeignKey.class)) {
+                            String column = field.getAnnotation(ForeignKey.class).value();
+                            Object fk = resultat.getObject(column);
+                            field.set(object, setForeignKey(field, fk, c));
+                        } else if (type == int.class || type == Integer.class) {
+                            field.set(object, resultat.getInt(fieldName));
                         } else if (type == float.class || type == Float.class) {
                             field.set(object, resultat.getFloat(i + 1));
                         } else if (type == double.class || type == Double.class) {
@@ -397,20 +447,22 @@ public class GenericDAO {
             if (stat != null) {
                 stat.close();
             }
-            if (c != null) {
+            if (c != null && newConnection) {
                 c.close();
             }
         }
-
     }
 
     // pour executer des requêtes qui modifie la table dans la base de données
-    public static void executeUpdate(String request) throws Exception {
+    public static void executeUpdate(String request, Connection c) throws Exception {
         System.out.println(request);
-        Connection c = null;
+        boolean newConnection = false;
         PreparedStatement stat = null;
         try {
-            c = connect.connect();
+            if (c == null) {
+                c = Connect.connect();
+                newConnection = true;
+            }
             stat = c.prepareStatement(request);
             int line = stat.executeUpdate();
             if (line < 1)
@@ -424,5 +476,4 @@ public class GenericDAO {
             }
         }
     }
-
 }

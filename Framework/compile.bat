@@ -14,6 +14,13 @@ javac --release 8 -d . Urls.java
 javac --release 8 -d . ParamList.java
 javac --release 8 -d . Param.java
 
+javac --release 8 -d . Paginate.java
+javac --release 8 -d . Pagination.java
+
+javac --release 8 -d . NotAuthorizedException.java
+::javac --release 8 -d . Token.java
+javac --release 8 -d . CorsFilter.java
+
 javac --release 8 -d . Mapping.java
 javac --release 8 -d . FileUpload.java
 javac --release 8 -d . ModelView.java
