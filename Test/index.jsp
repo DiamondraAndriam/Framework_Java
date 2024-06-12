@@ -27,7 +27,10 @@
     <h2> Test JSON </h2>
     <a href="<%=request.getContextPath()%>/get_emps"> Liste employés(mv) - sprint 13 </a><br/>
     <a href="<%=request.getContextPath()%>/all_emps"> Liste employés(Emp) - sprint 14 </a><br/>
-    
+
+    <h2> Test CRUD </h2>
+    <a href="<%=request.getContextPath()%>/employe/"> Liste employes </a><br/>
+    <a href="<%=request.getContextPath()%>/employe/new"> Insertion employe </a><br/>
     
 </body>
 </html>

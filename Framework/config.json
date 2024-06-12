@@ -1,0 +1,6 @@
+{
+    "user":"test",
+    "password":"test",
+    "url":"jdbc:postgresql://localhost:5432/test_framework",
+    "driver":"org.postgresql.Driver"
+}

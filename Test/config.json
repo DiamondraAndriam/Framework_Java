@@ -1,0 +1,305 @@
+{
+    "languages" : {
+        "csharp" : {
+            "name" : "dotnet",
+            "importSyntax":"using",
+            "packageSyntax":"namespace",
+            "openBracket":"{",
+            "closeBracket":"}",
+            "classSyntax":"public class",
+            "fieldSyntax":"Type field { get; set; }",
+            "listSyntax" : "IEnumerable<?>",
+            "endOfInstruction":";",
+            "annotationSyntax":"[?]",
+            "constructorSyntax": "public ?(){}",
+            "methodSyntax": "public #type# #name#(#arg#){\n #body#\n}",
+            "encapsulation":"",
+            "extension":"cs",
+            "frameworks" : {
+                "dotnet" : {
+                    "template" : "Template.code",
+                    "repository": "Template.code",
+                    "imports": {
+                        "controller":[
+                            "System.Diagnostics",
+                            "Microsoft.AspNetCore.Mvc",
+                            "packageName.classNameContext",
+                            "entity.className"
+                        ],
+                        "entity":[
+                            "System.ComponentModel.DataAnnotations",
+                            "System.ComponentModel.DataAnnotations.Schema"
+                        ],
+                        "repository":[
+                            "packageName.className",
+                            "using Microsoft.EntityFrameworkCore"
+                        ]
+                    },
+                    "annotationProperty" : {
+                        "table":"Table(name = \"?\")",
+                        "autoIncrement":"",
+                        "column":"Column(name = \"?\")",
+                        "entity": "",
+                        "controller": "ApiController",
+                        "constraints":{
+                            "primaryKey":"Id",
+                            "foreignKey":{
+                                "annotation":"Foreignkey(\"?\")",
+                                "manyToOne":"",
+                                "manyToMany":"",
+                                "oneToMany":"",
+                                "oneToOne":""
+                            }
+                        }
+                    },
+                    "crudMethod" : {
+                        "findAll": "return Ok(_context.#object#.ToList());",
+                        "findById":"",
+                        "delete": "_context.MyItems.Remove(#object#);\n_context.SaveChanges();\nreturn Ok();",
+                        "update": "var temp = #object#;\n_context.SaveChanges();\nreturn Ok();",
+                        "save": "_context.MyItems.Add(value);\n_context.SaveChanges();\nreturn Ok();"
+                    },
+                    "controllerProperty" : {
+                        "path": "Route('[?]')",
+                        "get": "HttpGet",
+                        "post": "HttpPost",
+                        "put": "HttpPut",
+                        "delete": "HttpDelete",
+                        "returnType": "ActionResult<?>",
+                        "field": "private readonly Ilogger<?Controller> _logger;",
+                        "annotationField": "",
+                        "annotationMethodParameter":"",
+                        "annotationArgumentParameterFormData":"FromBody",
+                        "annotationArgumentParameterLink":"",
+                        "constructor": "\tpublic #name#Controller(#name#DbContext context) { _context = context; }"
+                    },
+                    "repositoryProperty" : {
+                        "name":"DbContext",
+                        "classSyntax": "public class ?Controller : DbContext",
+                        "fieldSyntax": "\tpublic DbSet<#Field#> #Field# { get; set; }"
+                    }
+                }
+            }
+        },
+        "java" : {
+            "name" : "java",
+            "importSyntax":"import",
+            "packageSyntax":"package",
+            "classSyntax":"public class",
+            "fieldSyntax":"Type field;",
+            "openBracket":"{",
+            "closeBracket":"}",
+            "endOfInstruction":";",
+            "annotationSyntax":"@?",
+            "listSyntax" : "Iterable<?>",
+            "constructorSyntax": "public ?(){}",
+            "methodSyntax": "public #type# #name#(#arg#){\n #body#\n}",
+            "encapsulation":"\tpublic #type# get#Field#(){\n\t\treturn this.#field#;\n\t}\n\tpublic void set#Field#(#type# #field#){\n\t\tthis.#field# = #field#;\n\t}\n",
+            "extension":"java",
+            "frameworks": {
+                "spring-boot" : {
+                    "template" : "Template.code",
+                    "repository": "Template.code",
+                    "imports" : {
+                        "controller":[
+                            "packageName.classNameRepository",
+                            "entity.className",
+                            "org.springframework.http.*",
+                            "org.springframework.beans.factory.annotation.Autowired",
+                            "org.springframework.web.bind.annotation.*"
+                        ],
+                        "entity":[
+                            "jakarta.persistence.*"
+                        ],
+                        "repository":[
+                            "packageName.className",
+                            "org.springframework.data.repository.CrudRepository",
+                            "org.springframework.data.jpa.repository.Query"
+                        ]
+                    },
+                    "annotationProperty" : {
+                        "table": "Table(name = \"?\")",
+                        "autoIncrement":"GeneratedValue(strategy=GenerationType.IDENTITY)",
+                        "column": "Column(name = \"?\")",
+                        "entity": "Entity",
+                        "controller": "RestController\n@CrossOrigin(\"*\")",
+                        "constraints": {
+                            "primaryKey": "Id",
+                            "foreignKey": {
+                                "annotation":"JoinColumn(name = \"?\")",
+                                "manyToOne":"ManyToOne",
+                                "manyToMany":"",
+                                "oneToMany":"",
+                                "oneToOne":""
+                            }
+                        }
+                    },
+                    "crudMethod" : {
+                        "findAll": "return ResponseEntity.ok(repository.findAll());",
+                        "findById":"return ResponseEntity.ok(repository.findById(#Id#));",
+                        "delete": "return ResponseEntity.ok(repository.delete(#object#));",
+                        "update": "return ResponseEntity.ok(repository.save(#object#));",
+                        "save": "return ResponseEntity.ok(repository.save(#object#));"
+                    },
+                    "controllerProperty" : {
+                        "path": "RequestMapping(path = \"?\")",
+                        "get": "GetMapping()",
+                        "post": "PostMapping()",
+                        "put": "PutMapping()",
+                        "delete": "DeleteMapping()",
+                        "field": "private ?Repository repository;",
+                        "returnType": "ResponseEntity<?>",
+                        "annotationField": "Autowired",
+                        "annotationMethodParameter":"",
+                        "annotationArgumentParameterFormData":"RequestBody",
+                        "annotationArgumentParameterLink":"PathVariable",
+                        "constructor": ""
+                    },
+                    "repositoryProperty" : {
+                        "name":"Repository",
+                        "classSyntax": "public interface ?Repository extends CrudRepository<?, #type#>",
+                        "fieldSyntax": ""
+                    }
+
+                },
+                "karana" : {
+                    "template" : "Template.code",
+                    "repository": "", 
+                    "listSyntax" : "List<?>",
+                    "isOneRepository":"false",
+                    "imports" : {
+                        "controller":[
+                            "entity.className",
+                            "com.karana.etu2060.framework.annotation.*",
+                            "com.karana.etu2060.framework.annotation.property.*",
+                            "com.dao.database.GenericDao"
+                        ],
+                        "entity":[
+                            "com.dao.annotation.*",
+                            "com.dao.annotation.conf.ForeignType"
+                        ],
+                        "repository":[
+
+                        ]
+                    },
+                    "annotationProperty" : {
+                        "table": "Table(name = \"?\")",
+                        "autoIncrement":"GeneratedValue(autoIncrement = true)",
+                        "column": "Column(name = \"?\")",
+                        "entity": "",
+                        "controller": "",
+                        "constraints": {
+                            "primaryKey": "PrimaryKey",
+                            "foreignKey": {
+                                "annotation":"ForeignKey(mappedBy = \"?\", foreignType = ForeignType.OneToMany)",
+                                "manyToOne":"",
+                                "manyToMany":"",
+                                "oneToMany":"",
+                                "oneToOne":""
+                            }
+                        }
+                    },
+                    "crudMethod" : {
+                        "findAll": "try{\n\treturn GenericDao.findAll(null, entity);\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
+                        "findById":"try{\n\treturn GenericDao.findById(null, #Id#);\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
+                        "delete": "try{\n\tGenericDao.delete(null, #object#);\n\treturn \"deleted successfully\";\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
+                        "update": "try{\n\tGenericDao.update(null, #object#);\n\treturn \"updated successfully\";\n}catch(Exception e){\n\treturn \"Bad request\";\n}",
+                        "save": "try{\n\tGenericDao.save(null, #object#);\n\treturn \"saved successfully\";\n}catch(Exception e){\n\treturn \"Bad request\";\n}"
+                    },
+                    "controllerProperty" : {
+                        "path": "",
+                        "get": "Url(url = \"find-?.do\")\n@Json(method = JsonMethods.GET)",
+                        "post": "Url(url = \"save-?.do\")\n@Json(method = JsonMethods.POST)",
+                        "put": "Url(url = \"update-?.do\")\n@Json(method = JsonMethods.PUT)",
+                        "delete": "Url(url = \"delete-?.do\")\n@Json(method = JsonMethods.DELETE)",
+                        "classSyntax": "?Model",
+                        "name":"Model",
+                        "includedTerms":"",
+                        "field": "private ? entity = new ?();",
+                        "returnType": "Object",
+                        "returnTypeDelete": "void",
+                        "pathSyntax":"?",
+                        "annotationField": "",
+                        "annotationMethodParameter":"",
+                        "annotationArgumentParameterFormData":"Argument",
+                        "annotationArgumentParameterLink":"",
+                        "constructor":""
+                    },
+                    "repositoryProperty" : {
+                        "name":"",
+                        "classSyntax": "",
+                        "fieldSyntax":"",
+                        "constructor":""
+
+                    }
+                },
+                "java-framework" : {
+                    "template" : "Template.code",
+                    "repository": "",
+                    "listSyntax" : "List<?>",
+                    "isOneRepository":"true",
+                    "imports" : {
+                        "controller":[
+                            "entity.className",
+                            "etu1748.framework.annotation.*",
+                            "etu1748.framework.*"
+                        ],
+                        "entity":[
+                        ],
+                        "repository":[
+                        ]
+                    },
+                    "annotationProperty" : {
+                        "table": "",
+                        "autoIncrement":"",
+                        "column": "",
+                        "entity": "MVCModel",
+                        "controller": "MVCController",
+                        "constraints": {
+                            "primaryKey": "",
+                            "foreignKey": {
+                                "annotation":"",
+                                "manyToOne":"",
+                                "manyToMany":"",
+                                "oneToMany":"",
+                                "oneToOne":""
+                            }
+                        }
+                    },
+                    "crudMethod" : {
+                        "findAll": "try {\nList<Object> data = GenericDAO.findAll(#object#);\nreturn new ResponseAPI(data, null);\n} catch (Exception e) {\nreturn new ResponseAPI(null, e.getMessage());\n}",
+                        "findById": "try {\nList<Object> data = GenericDAO.findById(#object#, #object#.getId());\nreturn new ResponseAPI(data, null);\n} catch (Exception e) {\nreturn new ResponseAPI(null, e.getMessage());\n}",
+                        "delete": "try {\nList<Object> data = GenericDAO.delete(#object#, #object#.getId());\nreturn new ResponseAPI(data, null);\n} catch (Exception e) {\nreturn new ResponseAPI(null, e.getMessage());\n}",
+                        "update": "try {\nList<Object> data = GenericDAO.update(#object#, #object#.getId());\nreturn new ResponseAPI(data, null);\n} catch (Exception e) {\nreturn new ResponseAPI(null, e.getMessage());\n}",
+                        "save": "try {\nList<Object> data = GenericDAO.insert(#object#);\nreturn new ResponseAPI(data, null);\n} catch (Exception e) {\nreturn new ResponseAPI(null, e.getMessage());\n}"
+                    },
+                    "controllerProperty" : {
+                        "path": "",
+                        "get": "Urls(\"?/find.do\")\n@JSON(\"GET\")",
+                        "post": "Urls(\"?/new.do\")\n@JSON(\"POST\")",
+                        "put": "Urls(\"?/update.do\")\n@JSON(\"PUT\")",
+                        "delete": "Urls(\"?/delete.do\")\n@JSON(\"DELETE\")",
+                        "field": "private ? #object# = new ?()",
+                        "classSyntax": "?Model",
+                        "name":"Model",
+                        "includedTerms":"",
+                        "returnType": "ResponseAPI",
+                        "returnTypeDelete": "ResponseAPI",
+                        "pathSyntax":"?",
+                        "annotationField": "",
+                        "annotationMethodParameter":"",
+                        "annotationArgumentParameterFormData":"Param",
+                        "annotationArgumentParameterLink":"",
+                        "constructor": ""
+                    },
+                    "repositoryProperty" : {
+                        "name":"",
+                        "classSyntax": "",
+                        "fieldSyntax":"",
+                        "constructor":""
+                    }
+                }
+            }
+        }
+    }
+}

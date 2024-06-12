@@ -2,23 +2,34 @@ package etu1748.framework.util;
 
 import java.io.*;
 import java.io.IOException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.sql.Date;
 import java.sql.Time;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.http.*;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import etu1748.framework.FileUpload;
 
 public class Util {
+    static String path = Thread.currentThread().getContextClassLoader().getResource("").getPath();
+
+    private static HttpServletRequest request;
 
     public static String getBaseURL(String url) {
         System.out.println(url + "\n");
@@ -152,9 +163,131 @@ public class Util {
         }
     }
 
+    static class SqlDateDeserializer implements JsonDeserializer<Date> {
+        private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        @Override
+        public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                throws JsonParseException {
+            try {
+                java.util.Date utilDate = dateFormat.parse(json.getAsString());
+                return new Date(utilDate.getTime());
+            } catch (ParseException e) {
+                throw new JsonParseException(e);
+            }
+        }
+    }
+
+    static class SqlDateSerializer implements JsonSerializer<Date> {
+        private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        @Override
+        public JsonElement serialize(Date date, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(dateFormat.format(date));
+        }
+    }
+
     public String toJson(Object objet) {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class, new SqlDateSerializer())
+                .create();
         return gson.toJson(objet);
+    }
+
+    public static Object getJSONContent(HttpServletRequest req, Class<?> classe) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader reader = req.getReader();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class, new SqlDateDeserializer())
+                .create();
+        return gson.fromJson(sb.toString(), classe);
+    }
+
+    public static String generateToken() {
+        return UUID.randomUUID().toString();
+    }
+
+    public static String getToken(final HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer "))
+            return authHeader.substring(7);
+        return null;
+    }
+
+    public static List<String> getConfigToken() throws IOException {
+        Gson gson = new Gson();
+        String tokenPath = path + "token.json";
+        File tokenFile = new File(tokenPath);
+        List<String> tokens = null;
+        if (tokenFile.exists()) {
+            // Lire le fichier JSON existant
+            FileReader reader = new FileReader(tokenPath);
+            Type type = new TypeToken<List<String>>() {
+            }.getType();
+            tokens = gson.fromJson(reader, type);
+            reader.close();
+        }
+        return tokens;
+    }
+
+    public static void addConfig(String token) {
+        try {
+            // Créer un Gson instance
+            Gson gson = new Gson();
+
+            String tokenPath = path + "token.json";
+            List<String> tokens = null;
+
+            File tokenFile = new File(tokenPath);
+            if (tokenFile.exists()) {
+                tokens = getConfigToken();
+            } else {
+                tokens = new ArrayList<String>();
+                tokenFile.createNewFile();
+            }
+
+            // Ajouter un nouvel élément au tableau
+            tokens.add(token);
+
+            // Écrire l'objet JSON modifié dans le fichier
+            FileWriter file = new FileWriter(path + "/token.json");
+            gson.toJson(tokens, file);
+            file.close();
+
+            System.out.println("Objet JSON créé/modifié et écrit avec succès");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void removeConfig(String token) {
+        try {
+            String tokenPath = path + "token.json";
+            List<String> tokens = null;
+
+            File tokenFile = new File(tokenPath);
+            if (tokenFile.exists())
+                tokens = getConfigToken();
+
+            if (tokens != null) {
+                for (String string : tokens) {
+                    if (string.equals(token)) {
+                        tokens.remove(string);
+                        System.out.println("token removed");
+                        break;
+                    }
+                }
+            }
+            Gson gson = new Gson();
+            FileWriter file = new FileWriter(path + "/token.json");
+            gson.toJson(tokens, file);
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

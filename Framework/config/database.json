@@ -1,0 +1,17 @@
+[
+    {
+        "database":"oracle",
+        "driver":"oracle.jdbc.driver.OracleDriver",
+        "url":"jdbc:oracle:thin:@localhost:1521:XE"
+    }, 
+    {
+        "database":"postgresql",
+        "driver":"org.postgresql.Driver",
+        "url":"jdbc:postgresql://localhost:5432/"
+    },
+    {
+        "database":"mysql",
+        "driver":"com.mysql.jdbc.Driver",
+        "url":"jdbc:mysql://localhost:3306/"
+    }
+]
